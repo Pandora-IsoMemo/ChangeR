@@ -67,7 +67,8 @@ dataServer <- function(id, path = NULL, transformations = list()) {
         defaultSource = config()[["defaultSourceData"]],
         ckanFileTypes = config()[["ckanFileTypes"]],
         options = DataTools::importOptions(rPackageName = config()[["rPackageName"]])
-      )
+      ) %>%
+        suppressWarnings()
 
       observe({
         req(length(importedData()) > 0)
