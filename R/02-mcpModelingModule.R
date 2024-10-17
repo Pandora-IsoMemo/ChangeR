@@ -3,8 +3,6 @@
 #' UI function of mcpData module
 #'
 #' @rdname mcpDataServer
-#'
-#' @export
 mcpDataUI <- function(id) {
   ns <- NS(id)
   tagList(
@@ -25,8 +23,6 @@ mcpDataUI <- function(id) {
 #'
 #' @param id module id
 #' @param file_data reactive file data
-#'
-#' @export
 mcpDataServer <- function(id, file_data) {
   moduleServer(
     id,

@@ -3,6 +3,8 @@
 #' UI of the module
 #'
 #' @rdname changePointsServer
+#'
+#' @export
 changePointsUI <- function(id) {
   ns <- NS(id)
   tagList(tags$br(),
@@ -29,6 +31,8 @@ changePointsUI <- function(id) {
 #'
 #' @param id The module id
 #' @param input_data The reactive input data
+#'
+#' @export
 changePointsServer <- function(id, input_data) {
   moduleServer(id, function(input, output, session) {
 

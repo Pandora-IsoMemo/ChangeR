@@ -17,6 +17,7 @@ dataUI <- function(id) {
 #' @param id module id
 #' @param path path to the example data file, e.g. \code{file.path("data", "example.csv")}
 #' @param transformations list of transformations to apply to the dataset
+#'
 #' @export
 dataServer <- function(id, path = NULL, transformations = list()) {
   moduleServer(
