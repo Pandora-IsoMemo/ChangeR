@@ -88,6 +88,8 @@ matrixServer <- function(id,
     observe({
       # define empty matrix with number of rows and columns inputs
       req(input[["rows"]], input[["cols"]])
+      logDebug("%s: Entering observe 'input$rows', 'input$cols' ...", id)
+
       nrow <- input[["rows"]] %>% as.numeric()
       ncol <- input[["cols"]] %>% as.numeric()
       new_matrix <- matrix(
@@ -113,6 +115,7 @@ matrixServer <- function(id,
 
     observe({
       req(input[["cellID"]], input[["cell"]], length(dataMatrix()))
+      logDebug("%s: Entering observe 'input$set' ...", id)
       # set new value
       id <- as.numeric(input[["cellID"]])
       new_matrix <- dataMatrix()
@@ -132,6 +135,8 @@ matrixServer <- function(id,
       bindEvent(input[["set"]])
 
     observe({
+      logDebug("%s: Entering observe 'input$example' ...", id)
+
       newMatrix <- exampleFunction(...)
       dataMatrix(newMatrix)
       updateSelectInput(session, "cellID", choices = getCellChoices(

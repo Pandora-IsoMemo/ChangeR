@@ -35,6 +35,7 @@ mcpDataServer <- function(id, file_data) {
 
       observe({
         req(nrow(file_data()) > 0, ncol(file_data()) > 0)
+        logDebug("%s: Entering observe 'file_data()' ...", id)
         # update column select inputs
         updateSelectInput(session, "x", choices = colnames(file_data()))
 
@@ -47,6 +48,8 @@ mcpDataServer <- function(id, file_data) {
 
       observe({
         req(input[["x"]], input[["y"]])
+        logDebug("%s: Entering observe 'input$x', 'input$y' ...", id)
+
         # select relevant columns
         newData <- file_data()[, c(input[["x"]], input[["y"]])]
         # x column as numeric
@@ -114,12 +117,16 @@ mcpModelingServer <- function(id, formulasAndPriors, mcpData) {
 
     observe({
       req(formulasAndPriors(), mcpData())
+      logDebug("%s: Enable 'input$apply' ...", id)
+
       # enable the 'Run Model' button
       shinyjs::enable(ns("apply"), asis = TRUE) # use this instead of updateActionButton
       #updateActionButton(session, "apply", disabled = FALSE) # not working with current version in docker
     }) %>% bindEvent(formulasAndPriors(), mcpData())
 
     observe({
+      logDebug("%s: Entering observe 'input$apply' ...", id)
+
       res <- runMcp(
         lists = formulasAndPriors(),
         data = mcpData(),
@@ -186,6 +193,8 @@ mcpShowSingleModelServer <- function(id,
     mcpModel <- reactiveVal()
 
     observe({
+      logDebug("%s: Entering observe 'mcpFitList()' ...", id)
+
       mcpModels <- seq_along(mcpFitList())
       names(mcpModels) <- paste("Model", mcpModels)
       if (length(mcpModels) > 0)
@@ -201,6 +210,8 @@ mcpShowSingleModelServer <- function(id,
 
     observe({
       req(mcpFitList(), input[["showModel"]])
+      logDebug("%s: Entering observe 'input$showModel' ...", id)
+
       res <- mcpFitList()[[as.numeric(input[["showModel"]])]]
       mcpModel(res)
     }) %>% bindEvent(input[["showModel"]])

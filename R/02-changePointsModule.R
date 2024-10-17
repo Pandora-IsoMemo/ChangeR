@@ -8,7 +8,7 @@ changePointsUI <- function(id) {
   tagList(tags$br(),
           tabsetPanel(
             id = ns("changePointsTabs"),
-            tabPanel("Data", DT::dataTableOutput(ns("loadedData"))),
+            tabPanel("Data", DT::dataTableOutput(ns("data"))),
             tabPanel("MCP Lists from Segments & Priors", mcpFormulasUI(ns("formulas"))),
             tabPanel(
               "MCP Modeling",
@@ -28,13 +28,13 @@ changePointsUI <- function(id) {
 #' Server function of the module
 #'
 #' @param id The module id
-#' @param file_data The reactive file data
-changePointsServer <- function(id, file_data) {
+#' @param input_data The reactive input data
+changePointsServer <- function(id, input_data) {
   moduleServer(id, function(input, output, session) {
 
-    output$loadedData <- DT::renderDataTable(file_data$mainData)
+    output$data <- DT::renderDataTable(input_data$mainData)
 
-    mcpData <- mcpDataServer(id = "mcpData", reactive(file_data$mainData))
+    mcpData <- mcpDataServer(id = "mcpData", reactive(input_data$mainData))
     formulasAndPriors <- mcpFormulasServer(id = "formulas")
     mcpFitList <- mcpModelingServer(id = "mcp",
                                     mcpData = mcpData,

@@ -7,14 +7,14 @@
 \usage{
 dataUI(id)
 
-dataServer(id, transformations = list(), path = NULL)
+dataServer(id, path = NULL, transformations = list())
 }
 \arguments{
 \item{id}{module id}
 
-\item{transformations}{list of transformations to apply to the dataset}
-
 \item{path}{path to the example data file, e.g. \code{file.path("data", "example.csv")}}
+
+\item{transformations}{list of transformations to apply to the dataset}
 }
 \description{
 UI function of data module

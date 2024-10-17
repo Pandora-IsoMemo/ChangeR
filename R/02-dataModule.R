@@ -15,10 +15,10 @@ dataUI <- function(id) {
 #' Server function of data module
 #'
 #' @param id module id
-#' @param transformations list of transformations to apply to the dataset
 #' @param path path to the example data file, e.g. \code{file.path("data", "example.csv")}
+#' @param transformations list of transformations to apply to the dataset
 #' @export
-dataServer <- function(id, transformations = list(), path = NULL) {
+dataServer <- function(id, path = NULL, transformations = list()) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -45,9 +45,12 @@ dataServer <- function(id, transformations = list(), path = NULL) {
           logDebug("%s: Clicked 'input$example_data' ...", id)
 
           data <- data %>% resetData()
-          data$rawData <- read.csv(path) %>%
+          data$rawData <- path %>%
+            read.csv() %>%
             shinyTryCatch(errorTitle = "Reading example file failed", alertStyle = "shinyalert")
-          data$mainData <- data$rawData %>% applyTransformations(data$transformations)
+          data$mainData <- data$rawData %>%
+            applyTransformations(data$transformations) %>%
+            shinyTryCatch(errorTitle = "Applying transformations to file failed", alertStyle = "shinyalert")
           data$dataInfo <- extractDataInfo(data$mainData)
           data$source <- "example"
           data$fileName <- basename(path)
@@ -71,7 +74,8 @@ dataServer <- function(id, transformations = list(), path = NULL) {
 
         data <- data %>% resetData()
         data$rawData <- importedData()[[1]]
-        data$mainData <- data$rawData %>% applyTransformations(data$transformations)
+        data$mainData <- data$rawData %>% applyTransformations(data$transformations) %>%
+          shinyTryCatch(errorTitle = "Applying transformations to file failed", alertStyle = "shinyalert")
         data$dataInfo <- extractDataInfo(data$mainData)
         data$source <- "upload"
         data$fileName <- ""  # Replace with actual file name if available

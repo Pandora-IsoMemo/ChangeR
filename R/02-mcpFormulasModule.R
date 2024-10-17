@@ -80,12 +80,15 @@ mcpFormulasServer <- function(id) {
     observe({
       req(segmentsMatrix(), priorsMatrix())
 
+      logDebug("%s: Entering observe 'segmentsMatrix()', 'priorsMatrix()' ...", id)
       # enable the 'Create MCP Formulas' button
       shinyjs::enable(ns("apply"), asis = TRUE)
       #updateActionButton(session, "apply", disabled = FALSE) # not working with current version in docker
     }) %>% bindEvent(list(segmentsMatrix(), priorsMatrix()))
 
     observe({
+      logDebug("%s: Entering observe 'input$apply' ...", id)
+
       newFormulasAndPriors <- getComb(segments = segmentsMatrix(), priors = priorsMatrix()) %>%
         cleanComb() %>%
         splitComb() %>%

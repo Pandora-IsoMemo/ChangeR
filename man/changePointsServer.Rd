@@ -7,12 +7,12 @@
 \usage{
 changePointsUI(id)
 
-changePointsServer(id, file_data)
+changePointsServer(id, input_data)
 }
 \arguments{
 \item{id}{The module id}
 
-\item{file_data}{The reactive file data}
+\item{input_data}{The reactive input data}
 }
 \description{
 UI of the module
