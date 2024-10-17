@@ -1,0 +1,15 @@
+defaultSourceData: "ckan"           # for import of data
+defaultSourceModel: "file"           # for import of models
+# file types that are allowed for import from Pandora ("ckan")
+ckanFileTypes:
+  - "xls"
+  - "xlsx"
+  - "csv"
+  - "odt"
+  - "txt"
+ckanModelTypes:
+  - "changer"
+  - "zip"
+githubRepo: "ChangeR"        # for import of models
+fileExtension: "changer"      # for download of models
+rPackageName: "ChangeR"       # for download and import of models
