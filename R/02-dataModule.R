@@ -1,6 +1,6 @@
 #' UI function of data module
 #'
-#' @param id module id
+#' @rdname dataServer
 #'
 #' @export
 dataUI <- function(id) {
