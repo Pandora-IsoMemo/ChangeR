@@ -7,6 +7,7 @@ mcpCompareModelsUI <- function(id) {
   ns <- NS(id)
 
   tagList(
+    tags$br(),
     selectInput(ns("method"), "Method", c("loo", "waic", "heuristic")),
     tags$br(),
     verbatimTextOutput(ns("compareModels")) %>% withSpinner(color = "#20c997")

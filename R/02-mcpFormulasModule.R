@@ -7,8 +7,8 @@ mcpFormulasUI <- function(id) {
   ns <- NS(id)
   tagList(
     tags$br(),
-    fluidRow(column(8, tags$h4("Segments")), column(
-      4, align = "right", infoButtonUI(ns("formulaInfo"), label = "Segment Description")
+    fluidRow(column(8, tags$h4("MCP Segments")), column(
+      4, align = "right", infoButtonUI(ns("formulaInfo"), label = "Segment Info")
     )),
     matrixUI(
       ns("segments"),
@@ -17,8 +17,8 @@ mcpFormulasUI <- function(id) {
       exampleLabel = "Example Segments"
     ),
     tags$br(),
-    fluidRow(column(8, tags$h4("Priors")), column(
-      4, align = "right", infoButtonUI(ns("PriorInfo"), label = "Prior Description")
+    fluidRow(column(8, tags$h4("MCP Priors")), column(
+      4, align = "right", infoButtonUI(ns("PriorInfo"), label = "Prior Info")
     )),
     matrixUI(
       ns("priors"),
@@ -26,7 +26,7 @@ mcpFormulasUI <- function(id) {
       defaultCellContent = "x_1 = dunif(-4, -0.5);",
       exampleLabel = "Example Priors"
     ),
-    tags$br(),
+    tags$hr(),
     fluidRow(
       column(10, verbatimTextOutput(ns("mcpFormulas"))),
       column(

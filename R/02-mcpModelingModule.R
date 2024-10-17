@@ -6,15 +6,23 @@
 mcpDataUI <- function(id) {
   ns <- NS(id)
   tagList(
-    selectInput(
-      ns("x"),
-      "x",
-      choices = c("Please load data first ..." = "")
-    ),
-    selectInput(
-      ns("y"),
-      "y",
-      choices = c("Please load data first ..." = "")
+    tags$br(),
+    tags$h4("MCP Data"),
+    fluidRow(
+      column(3,
+             selectInput(
+               ns("x"),
+               "x column",
+               choices = c("Please load data first ..." = "")
+             )
+             ),
+      column(3,
+             selectInput(
+               ns("y"),
+               "y column",
+               choices = c("Please load data first ..." = "")
+             )
+             )
     )
   )
 }
@@ -69,6 +77,7 @@ mcpDataServer <- function(id, file_data) {
 mcpModelingUI <- function(id) {
   ns <- NS(id)
   tagList(tags$br(),
+          tags$h4("MCP Run"),
           fluidRow(
             column(
               3,
@@ -96,7 +105,7 @@ mcpModelingUI <- function(id) {
               style = "margin-top: 1.75em;",
               # load example data instead of plot data:
               #actionButton(ns("loadExampleDf"), "Load Example Data"),
-              actionButton(ns("apply"), "Run MCP", disabled = TRUE)
+              actionButton(ns("apply"), "Run", disabled = TRUE)
             )
           ),
           tags$hr())

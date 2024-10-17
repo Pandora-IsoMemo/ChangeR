@@ -52,6 +52,7 @@ matrixUI <- function(id,
       ),
       column(
         width = 1,
+        align = "right",
         style = "margin-top: 1.75em;",
         actionButton(ns("set"), "Set")
       ),
@@ -108,7 +109,7 @@ matrixServer <- function(id,
     output$outputMatrix <- renderTable({
       validate(need(
         dataMatrix(),
-        "Please click 'Set' first or load 'Example Priors'"
+        "Please click 'Set' first or load 'Example'"
       ))
       dataMatrix()
     }, rownames = TRUE)
