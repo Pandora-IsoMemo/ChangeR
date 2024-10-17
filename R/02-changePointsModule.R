@@ -10,7 +10,10 @@ changePointsUI <- function(id) {
   tagList(tags$br(),
           tabsetPanel(
             id = ns("changePointsTabs"),
-            tabPanel("Data", DT::dataTableOutput(ns("data"))),
+            tabPanel("Data", tagList(
+              tags$br(),
+              DT::dataTableOutput(ns("data"))
+            )),
             tabPanel("MCP Lists from Segments & Priors", mcpFormulasUI(ns("formulas"))),
             tabPanel(
               "MCP Modeling",
@@ -36,7 +39,11 @@ changePointsUI <- function(id) {
 changePointsServer <- function(id, input_data) {
   moduleServer(id, function(input, output, session) {
 
-    output$data <- DT::renderDataTable(input_data$mainData)
+    output$data <- DT::renderDataTable({
+      validate(need(length(input_data$mainData) > 0, "Please load data first ..."))
+
+      input_data$mainData
+    })
 
     mcpData <- mcpDataServer(id = "mcpData", reactive(input_data$mainData))
     formulasAndPriors <- mcpFormulasServer(id = "formulas")
