@@ -6,7 +6,7 @@ test_that("MCP Formulas Server works correctly", {
       expect_true(is.null(session$input$apply))
 
       # Expect that formulasAndPriors is initially NULL
-      expect_true(is.null(formulasAndPriors()))
+      expect_true(is.null(session$returned()))
 
       # Mock segment and prior matrices
       mock_segments <- matrix(c("y ~ 1 + x", "y ~ 1 + x^2"), nrow = 1, ncol = 2)
@@ -27,7 +27,7 @@ test_that("MCP Formulas Server works correctly", {
 
       # Verify the formulas and priors reactive value is updated
       expect_true(all.equal(
-        formulasAndPriors(),
+        session$returned(),
         expected_output, check.attributes = FALSE)
       )
     }
