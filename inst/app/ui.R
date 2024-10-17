@@ -8,17 +8,16 @@ tagList(
     position = "fixed-top",
     collapsible = TRUE,
     id = "tab",
-    tabPanel("Data", dataUI(id = "data")),
-    tabPanel("MCP Lists from Segments & Priors", mcpFormulasUI("formulas")),
-    tabPanel(
-      "MCP Modeling",
-      mcpDataUI("mcpData"),
-      mcpModelingUI("mcp"),
-      mcpShowSingleModelUI("singleModelOut")
+    sidebarPanel(
+      ## left sidebar ----
+      width = 2,
+      style = "position:fixed; width:15%; max-width:350px; overflow-y:auto; height:85%",
+      dataUI(id = "data")
     ),
-    tabPanel("Comparison of Models", mcpCompareModelsUI(
-      "compareModelsOut"
-    ))
+    mainPanel(
+      ## main panel ----
+      changePointsUI("changePoints")
+    )
   ),
   shinyTools::headerButtonsUI(id = "header", help_link = ""),
   tags$head(
