@@ -39,7 +39,8 @@ test_that("dataServer loads example data correctly", {
       expect_equal(session$returned$dataInfo$ncols, ncol(example_data))
       expect_equal(session$returned$dataInfo$colnames, colnames(example_data))
     }
-  )
+  ) %>%
+    suppressWarnings()
 
   # Clean up the temporary file
   unlink(temp_example_path)
