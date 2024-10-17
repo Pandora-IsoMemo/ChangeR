@@ -4,6 +4,7 @@ ADD . .
 
 RUN apt-get update \
 && apt-get install -y --no-install-recommends \
+jags \
 qpdf \
 pandoc \
 libmagick++-dev \
