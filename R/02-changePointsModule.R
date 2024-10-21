@@ -45,24 +45,35 @@ changePointsServer <- function(id, input_data) {
       input_data$mainData
     })
 
-    mcpData <- mcpDataServer(id = "mcpData", reactive(input_data$mainData))
-    formulasAndPriors <- mcpFormulasServer(id = "formulas")
+    input_data$mcpData <- mcpDataServer(id = "mcpData", reactive(input_data$mainData))
+
+    formulasList <- mcpFormulasServer(
+      id = "formulas",
+      input_data = input_data#,
+      #uploadedSegments = input_data$uploadedSegments,
+      #uploadedPriors = input_data$uploadedPriors
+    )
+    #input_data$segmentsMatrix <- formulasList$segmentsMatrix
+    #input_data$priorsMatrix <- formulasList$priorsMatrix
+
     mcpFitList <- mcpModelingServer(id = "mcp",
-                                    mcpData = mcpData,
-                                    formulasAndPriors = formulasAndPriors)
+                                    mcpData = input_data$mcpData,
+                                    formulasAndPriors = formulasList$formulasAndPriors)
 
     mcpShowSingleModelServer(
       id = "singleModelOut",
-      mcpData = mcpData,
-      formulasAndPriors = formulasAndPriors,
+      mcpData = input_data$mcpData,
+      formulasAndPriors = formulasList$formulasAndPriors,
       mcpFitList = mcpFitList
     )
 
     mcpCompareModelsServer(
       id = "compareModelsOut",
-      mcpData = mcpData,
-      formulasAndPriors = formulasAndPriors,
+      mcpData = input_data$mcpData,
+      formulasAndPriors = formulasList$formulasAndPriors,
       mcpFitList = mcpFitList
     )
+
+    return(mcpFitList)
   })
 }

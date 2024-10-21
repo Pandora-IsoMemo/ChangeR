@@ -14,7 +14,13 @@ matrixUI(
   exampleLabel = "Example Matrix"
 )
 
-matrixServer(id, exampleFunction, validateCellFunction = NULL, ...)
+matrixServer(
+  id,
+  exampleFunction,
+  validateCellFunction = NULL,
+  uploadedMatrix = reactiveVal(),
+  ...
+)
 }
 \arguments{
 \item{id}{namespace id}
@@ -32,6 +38,8 @@ matrixServer(id, exampleFunction, validateCellFunction = NULL, ...)
 \item{exampleFunction}{function to load example input}
 
 \item{validateCellFunction}{function to validate the cell content}
+
+\item{uploadedMatrix}{reactiveVal for uploaded matrix}
 
 \item{...}{additional arguments to example function}
 }

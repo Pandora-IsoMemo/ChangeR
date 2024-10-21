@@ -27,35 +27,31 @@ mcpFormulasUI <- function(id) {
       exampleLabel = "Example Priors"
     ),
     tags$hr(),
-    fluidRow(
-      column(10, verbatimTextOutput(ns("mcpFormulas"))),
-      column(
-        2,
-        align = "right",
-        actionButton(ns("apply"), "Create MCP Lists", disabled = TRUE)
-      )
-    )
+    verbatimTextOutput(ns("mcpFormulas"))
   )
 }
 
 #' MCP Formulas Server
 #'
 #' @param id The module id
-mcpFormulasServer <- function(id) {
+mcpFormulasServer <- function(id, input_data, uploadedSegments = reactiveVal(), uploadedPriors = reactiveVal()) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+    formulasList <- reactiveValues()
     formulasAndPriors <- reactiveVal()
 
-    segmentsMatrix <- matrixServer(
+    formulasList$segmentsMatrix <- matrixServer(
       "segments",
       exampleFunction = readExampleMatrix,
       validateCellFunction = validateFormula,
-      path = file.path("data", "example_breakPointSegments.csv")
+      path = file.path("data", "example_breakPointSegments.csv"),
+      uploadedMatrix = uploadedSegments
     )
-    priorsMatrix <- matrixServer(
+    formulasList$priorsMatrix <- matrixServer(
       "priors",
       exampleFunction = readExampleMatrix,
-      path = file.path("data", "example_breakPointPriors.csv")
+      path = file.path("data", "example_breakPointPriors.csv"),
+      uploadedMatrix = uploadedPriors
     )
 
     infoButtonServer(
@@ -78,26 +74,22 @@ mcpFormulasServer <- function(id) {
     )
 
     observe({
-      req(segmentsMatrix(), priorsMatrix())
+      req(formulasList$segmentsMatrix(), formulasList$priorsMatrix())
 
       logDebug("%s: Entering observe 'segmentsMatrix()', 'priorsMatrix()' ...", id)
-      # enable the 'Create MCP Formulas' button
-      shinyjs::enable(ns("apply"), asis = TRUE)
-      #updateActionButton(session, "apply", disabled = FALSE) # not working with current version in docker
-    }) %>% bindEvent(list(segmentsMatrix(), priorsMatrix()))
+        newFormulasAndPriors <- getComb(segments = formulasList$segmentsMatrix(), priors = formulasList$priorsMatrix()) %>%
+          cleanComb() %>%
+          splitComb() %>%
+          setFormulasAndPriors() %>%
+          shinyTryCatch(errorTitle = "Error in creating MCP lists", warningTitle = "Warning in creating MCP lists")
 
-    observe({
-      logDebug("%s: Entering observe 'input$apply' ...", id)
+        formulasAndPriors(newFormulasAndPriors)
+    }) %>% bindEvent(list(formulasList$segmentsMatrix(), formulasList$priorsMatrix()), ignoreInit = TRUE)
 
-      newFormulasAndPriors <- getComb(segments = segmentsMatrix(), priors = priorsMatrix()) %>%
-        cleanComb() %>%
-        splitComb() %>%
-        setFormulasAndPriors() %>%
-        shinyTryCatch(errorTitle = "Error in creating MCP lists", warningTitle = "Warning in creating MCP lists")
-
-      formulasAndPriors(newFormulasAndPriors)
-    }) %>%
-      bindEvent(input[["apply"]])
+    formulasList$formulasAndPriors <- reactive({
+      req(formulasAndPriors())
+      formulasAndPriors()
+    })
 
     output$mcpFormulas <- renderPrint({
       validate(need(
@@ -107,7 +99,7 @@ mcpFormulasServer <- function(id) {
       formulasAndPriors()
     })
 
-    return(formulasAndPriors)
+    return(formulasList)
   })
 }
 

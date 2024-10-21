@@ -16,7 +16,9 @@ tagList(
             ## left sidebar ----
             width = 2,
             style = "position:fixed; width:15%; max-width:350px; overflow-y:auto; height:85%",
-            dataUI(id = "data")
+            DataTools::dataUI(id = "data", title = "Data"), # import of data
+            DataTools::importUI("modelUpload", label = "Import Model", title = "Session"), # import of session
+            DataTools::downloadModelUI("modelDownload", label = "Download Model") # download of session
           ),
           mainPanel(
             ## main panel ----

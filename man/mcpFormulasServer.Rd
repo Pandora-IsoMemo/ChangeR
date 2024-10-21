@@ -7,7 +7,12 @@
 \usage{
 mcpFormulasUI(id)
 
-mcpFormulasServer(id)
+mcpFormulasServer(
+  id,
+  input_data,
+  uploadedSegments = reactiveVal(),
+  uploadedPriors = reactiveVal()
+)
 }
 \arguments{
 \item{id}{The module id}

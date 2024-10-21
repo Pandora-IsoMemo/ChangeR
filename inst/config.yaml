@@ -10,6 +10,5 @@ ckanFileTypes:
 ckanModelTypes:
   - "changer"
   - "zip"
-githubRepo: "ChangeR"        # for import of models
 fileExtension: "changer"      # for download of models
 rPackageName: "ChangeR"       # for download and import of models

@@ -74,10 +74,12 @@ matrixUI <- function(id,
 #' @param id namespace id
 #' @param exampleFunction function to load example input
 #' @param validateCellFunction function to validate the cell content
+#' @param uploadedMatrix reactiveVal for uploaded matrix
 #' @param ... additional arguments to example function
 matrixServer <- function(id,
                          exampleFunction,
                          validateCellFunction = NULL,
+                         uploadedMatrix = reactiveVal(),
                          ...) {
   if (is.null(validateCellFunction)) {
     validateCellFunction <- function(x)
@@ -85,6 +87,19 @@ matrixServer <- function(id,
   }
   moduleServer(id, function(input, output, session) {
     dataMatrix <- reactiveVal()
+
+    observe({
+      logDebug("%s: Entering observe 'uploadedMatrix()' ...", id)
+
+      if (length(uploadedMatrix()) > 0) {
+        dataMatrix(uploadedMatrix())
+        updateSelectInput(session, "cellID", choices = getCellChoices(
+          nrow = nrow(uploadedMatrix()),
+          ncol = ncol(uploadedMatrix())
+        ))
+      }
+
+    }) %>% bindEvent(uploadedMatrix())
 
     observe({
       # define empty matrix with number of rows and columns inputs
@@ -104,7 +119,7 @@ matrixServer <- function(id,
       dataMatrix(new_matrix)
       updateSelectInput(session, "cellID", choices = getCellChoices(nrow = nrow, ncol = ncol))
     }) %>%
-      bindEvent(list(input[["rows"]], input[["cols"]]))
+      bindEvent(list(input[["rows"]], input[["cols"]]), ignoreInit = TRUE)
 
     output$outputMatrix <- renderTable({
       validate(need(
