@@ -13,7 +13,7 @@ mcpOutServer(
   mcpData,
   mcpFitList,
   mcpModel,
-  outFUN,
+  mcpOutFUN,
   renderFUN = renderPrint
 )
 }
@@ -22,7 +22,7 @@ mcpOutServer(
 
 \item{title}{The title of the output}
 
-\item{outFUN}{The output function}
+\item{outFUN}{The output function, either verbatimTextOutput or plotOutput}
 
 \item{showWidth}{Show the width slider}
 
@@ -34,7 +34,9 @@ mcpOutServer(
 
 \item{mcpModel}{The reactive mcp model}
 
-\item{renderFUN}{The render function}
+\item{mcpOutFUN}{The output function, either summary, waic or plot}
+
+\item{renderFUN}{The render function, either "renderPrint" or "renderPlot"}
 }
 \description{
 MCP Output UI

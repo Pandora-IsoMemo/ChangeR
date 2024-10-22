@@ -217,7 +217,7 @@ mcpShowSingleModelServer <- function(id,
       mcpData = mcpData,
       mcpFitList = mcpFitList,
       mcpModel = mcpModel,
-      outFUN = summary,
+      mcpOutFUN = "summary",
       renderFUN = renderPrint
     )
 
@@ -227,7 +227,7 @@ mcpShowSingleModelServer <- function(id,
       mcpData = mcpData,
       mcpFitList = mcpFitList,
       mcpModel = mcpModel,
-      outFUN = waic,
+      mcpOutFUN = "waic",
       renderFUN = renderPrint
     )
 
@@ -237,7 +237,7 @@ mcpShowSingleModelServer <- function(id,
       mcpData = mcpData,
       mcpFitList = mcpFitList,
       mcpModel = mcpModel,
-      outFUN = plot,
+      mcpOutFUN = "plot",
       renderFUN = renderPlot
     )
   })
@@ -246,6 +246,7 @@ mcpShowSingleModelServer <- function(id,
 #' MCP Output UI
 #'
 #' @param title The title of the output
+#' @param outFUN The output function, either verbatimTextOutput or plotOutput
 #' @param showWidth Show the width slider
 #' @rdname mcpOutServer
 mcpOutUI <- function(id,
@@ -254,19 +255,25 @@ mcpOutUI <- function(id,
                      showWidth = FALSE) {
   ns <- NS(id)
 
-  tagList(tags$h4(title),
-          outFUN(ns("modelOut")) %>% withSpinner(color = "#20c997"),
-          if (showWidth) {
-            sliderInput(
-              ns("width"),
-              "Summary width",
-              min = 0.01,
-              max = 0.99,
-              value = 0.95,
-              step = 0.01,
-              width = "100%"
-            )
-          })
+  tagList(
+    fluidRow(column(6, tags$h4(title)), column(6, align = "right", uiOutput(
+      ns("exportButton")
+    ))),
+    tags$br(),
+    outFUN(ns("modelOut")) %>% withSpinner(color = "#20c997"),
+    if (showWidth) {
+      sliderInput(
+        ns("width"),
+        "Summary width",
+        min = 0.01,
+        max = 0.99,
+        value = 0.95,
+        step = 0.01,
+        width = "100%"
+      )
+    },
+    tags$br()
+  )
 }
 
 #' MCP Output Server
@@ -276,16 +283,34 @@ mcpOutUI <- function(id,
 #' @param mcpData The reactive mcp data
 #' @param mcpFitList The reactive mcp fit list
 #' @param mcpModel The reactive mcp model
-#' @param outFUN The output function
-#' @param renderFUN The render function
+#' @param mcpOutFUN The output function, either summary, waic or plot
+#' @param renderFUN The render function, either "renderPrint" or "renderPlot"
 mcpOutServer <- function(id,
                          formulasAndPriors,
                          mcpData,
                          mcpFitList,
                          mcpModel,
-                         outFUN,
+                         mcpOutFUN,
                          renderFUN = renderPrint) {
   moduleServer(id, function(input, output, session) {
+    ns <- session$ns
+
+    mcpOutFUNParams <- reactive({
+      ifelse(is.null(input[["width"]]), list(), list(width = input[["width"]]))
+    })
+
+    # displayed content (either print or plot)
+    out_content <- reactive({
+      if (is.null(mcpModel()))
+        return(NULL)
+
+      do.call(mcpOutFUN, c(list(mcpModel()), mcpOutFUNParams())) %>%
+        shinyTryCatch(
+          errorTitle = sprintf("Error during creating '%s' output", id),
+          warningTitle = sprintf("Warning during creating '%s' output", id)
+        )
+    })
+
     output$modelOut <- renderFUN({
       validate(need(
         formulasAndPriors(),
@@ -295,13 +320,48 @@ mcpOutServer <- function(id,
       validate(need(mcpFitList(), "Please 'Run MCP' first ..."))
       validate(need(mcpModel(), "Please select MCP model first ..."))
 
-      params <- ifelse(is.null(input[["width"]]), list(), list(width = input[["width"]]))
-
-      do.call(outFUN, c(list(mcpModel()), params)) %>%
-        shinyTryCatch(
-          errorTitle = sprintf("Error during creating '%s' output", id),
-          warningTitle = sprintf("Warning during creating '%s' output", id)
-        )
+      out_content()
     })
+
+    output$exportButton <- renderUI({
+      if (mcpOutFUN %in% c("plot")) {
+        plotExportButton(ns("download"), "Export")
+      } else {
+        downloadButton(ns("download"), "Export", icon = NULL)
+      }
+    })
+
+    if (mcpOutFUN %in% c("plot")) {
+      plotExportServer("download", plotFun = reactive({
+        function() {
+          out_content()
+        }
+      }))
+    } else {
+      # for debugging
+      # observe({
+      #   req(mcpModel(), mcpOutFUN != "plot")
+      #   browser()
+      #   do.call(mcpOutFUN, c(list(mcpModel()), mcpOutFUNParams())) %>% capture.output()
+      # })
+
+      output[["download"]] <- downloadHandler(
+        filename = function() {
+          sprintf("model_%s.txt", mcpOutFUN)
+        },
+        content = function(file) {
+          if (is.null(mcpModel()))
+            return(NULL)
+
+          # cannot use out_content() directly, because some output content gets lost
+          #res <- capture.output(out_content()) # !NOT USE!
+
+          res <- do.call(mcpOutFUN, c(list(mcpModel()), mcpOutFUNParams())) %>%
+            capture.output()
+
+          writeLines(res, file)
+        }
+      )
+    }
   })
 }
