@@ -216,6 +216,7 @@ mcpShowSingleModelServer <- function(id,
       formulasAndPriors = formulasAndPriors,
       mcpData = mcpData,
       mcpFitList = mcpFitList,
+      mcpModelName = reactive(input[["showModel"]]),
       mcpModel = mcpModel,
       mcpOutFUN = "summary",
       renderFUN = renderPrint
@@ -226,6 +227,7 @@ mcpShowSingleModelServer <- function(id,
       formulasAndPriors = formulasAndPriors,
       mcpData = mcpData,
       mcpFitList = mcpFitList,
+      mcpModelName = reactive(input[["showModel"]]),
       mcpModel = mcpModel,
       mcpOutFUN = "waic",
       renderFUN = renderPrint
@@ -236,6 +238,7 @@ mcpShowSingleModelServer <- function(id,
       formulasAndPriors = formulasAndPriors,
       mcpData = mcpData,
       mcpFitList = mcpFitList,
+      mcpModelName = reactive(input[["showModel"]]),
       mcpModel = mcpModel,
       mcpOutFUN = "plot",
       renderFUN = renderPlot
@@ -282,13 +285,15 @@ mcpOutUI <- function(id,
 #' @param formulasAndPriors The reactive formulas and priors
 #' @param mcpData The reactive mcp data
 #' @param mcpFitList The reactive mcp fit list
+#' @param mcpModelName The reactive mcp model name
 #' @param mcpModel The reactive mcp model
-#' @param mcpOutFUN The output function, either summary, waic or plot
-#' @param renderFUN The render function, either "renderPrint" or "renderPlot"
+#' @param mcpOutFUN The output function, either "summary", "waic" or "plot"
+#' @param renderFUN The render function, either renderPrint or renderPlot
 mcpOutServer <- function(id,
                          formulasAndPriors,
                          mcpData,
                          mcpFitList,
+                         mcpModelName,
                          mcpModel,
                          mcpOutFUN,
                          renderFUN = renderPrint) {
@@ -332,7 +337,10 @@ mcpOutServer <- function(id,
     })
 
     if (mcpOutFUN %in% c("plot")) {
-      plotExportServer("download", plotFun = reactive({
+      # filename is not yet reactive in plotExportServer
+      plotExportServer("download",
+                       filename = sprintf("model_%s", mcpOutFUN),
+                       plotFun = reactive({
         function() {
           out_content()
         }
@@ -347,7 +355,7 @@ mcpOutServer <- function(id,
 
       output[["download"]] <- downloadHandler(
         filename = function() {
-          sprintf("model_%s.txt", mcpOutFUN)
+          sprintf("model_%s_%s.txt", mcpModelName(), mcpOutFUN)
         },
         content = function(file) {
           if (is.null(mcpModel()))

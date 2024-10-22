@@ -12,6 +12,7 @@ mcpOutServer(
   formulasAndPriors,
   mcpData,
   mcpFitList,
+  mcpModelName,
   mcpModel,
   mcpOutFUN,
   renderFUN = renderPrint
@@ -32,11 +33,13 @@ mcpOutServer(
 
 \item{mcpFitList}{The reactive mcp fit list}
 
+\item{mcpModelName}{The reactive mcp model name}
+
 \item{mcpModel}{The reactive mcp model}
 
-\item{mcpOutFUN}{The output function, either summary, waic or plot}
+\item{mcpOutFUN}{The output function, either "summary", "waic" or "plot"}
 
-\item{renderFUN}{The render function, either "renderPrint" or "renderPlot"}
+\item{renderFUN}{The render function, either renderPrint or renderPlot}
 }
 \description{
 MCP Output UI
