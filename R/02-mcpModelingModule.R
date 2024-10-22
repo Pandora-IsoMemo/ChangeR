@@ -5,26 +5,11 @@
 #' @rdname mcpDataServer
 mcpDataUI <- function(id) {
   ns <- NS(id)
-  tagList(
-    tags$br(),
-    tags$h4("MCP Data"),
-    fluidRow(
-      column(3,
-             selectInput(
-               ns("x"),
-               "x column",
-               choices = c("Please load data first ..." = "")
-             )
-             ),
-      column(3,
-             selectInput(
-               ns("y"),
-               "y column",
-               choices = c("Please load data first ..." = "")
-             )
-             )
-    )
-  )
+  tagList(tags$br(), tags$h4("MCP Data"), fluidRow(column(
+    3, selectInput(ns("x"), "x column", choices = c("Please load data first ..." = ""))
+  ), column(
+    3, selectInput(ns("y"), "y column", choices = c("Please load data first ..." = ""))
+  )))
 }
 
 #' Server function of mcpData module
@@ -32,42 +17,45 @@ mcpDataUI <- function(id) {
 #' @param id module id
 #' @param file_data reactive file data
 mcpDataServer <- function(id, file_data) {
-  moduleServer(
-    id,
-    function(input, output, session) {
-      mcpData <- reactiveVal()
+  moduleServer(id, function(input, output, session) {
+    mcpData <- reactiveVal()
 
-      observe({
-        req(nrow(file_data()) > 0, ncol(file_data()) > 0)
-        logDebug("%s: Entering observe 'file_data()' ...", id)
-        # update column select inputs
-        updateSelectInput(session, "x", choices = colnames(file_data()))
+    observe({
+      req(nrow(file_data()) > 0, ncol(file_data()) > 0)
+      logDebug("%s: Entering observe 'file_data()' ...", id)
+      # update column select inputs
+      updateSelectInput(session, "x", choices = colnames(file_data()))
 
-        if (ncol(file_data()) == 1) {
-          updateSelectInput(session, "y", choices = c("Data has only one column ..." = ""))
-        } else {
-          updateSelectInput(session, "y", choices = colnames(file_data()), selected = colnames(file_data())[2])
-        }
-      }) %>% bindEvent(file_data())
+      if (ncol(file_data()) == 1) {
+        updateSelectInput(session, "y", choices = c("Data has only one column ..." = ""))
+      } else {
+        updateSelectInput(
+          session,
+          "y",
+          choices = colnames(file_data()),
+          selected = colnames(file_data())[2]
+        )
+      }
+    }) %>% bindEvent(file_data())
 
-      observe({
-        req(input[["x"]], input[["y"]])
-        logDebug("%s: Entering observe 'input$x', 'input$y' ...", id)
+    observe({
+      req(input[["x"]], input[["y"]])
+      logDebug("%s: Entering observe 'input$x', 'input$y' ...", id)
 
-        # select relevant columns
-        newData <- file_data()[, c(input[["x"]], input[["y"]])]
-        # x column as numeric
-        newData[, input[["x"]]] <- as.numeric(newData[, input[["x"]]])
-        # rename columns
-        colnames(newData) <- c("x", "y")
-        # remove rows with NA
-        newData <- na.omit(newData)
+      # select relevant columns
+      newData <- file_data()[, c(input[["x"]], input[["y"]])]
+      # x column as numeric
+      newData[, input[["x"]]] <- as.numeric(newData[, input[["x"]]])
+      # rename columns
+      colnames(newData) <- c("x", "y")
+      # remove rows with NA
+      newData <- na.omit(newData)
 
-        mcpData(newData)
-      }) %>% bindEvent(input[["x"]], input[["y"]])
+      mcpData(newData)
+    }) %>% bindEvent(input[["x"]], input[["y"]])
 
-      return(mcpData)
-    })
+    return(mcpData)
+  })
 }
 
 
@@ -76,39 +64,41 @@ mcpDataServer <- function(id, file_data) {
 #' @rdname mcpModelingServer
 mcpModelingUI <- function(id) {
   ns <- NS(id)
-  tagList(tags$br(),
-          tags$h4("MCP Run"),
-          fluidRow(
-            column(
-              3,
-              numericInput(ns("adapt"), "Burn in length", value = 5000),
-              helpText("Increase for better conversion (makes the run slower).")
-            ),
-            column(3, numericInput(
-              ns("chains"),
-              "Number of chains",
-              value = 3,
-              min = 1
-            )),
-            column(
-              3,
-              numericInput(
-                ns("iter"),
-                "Number of iterations",
-                value = 3000,
-                min = 1
-              )
-            ),
-            column(
-              3,
-              align = "right",
-              style = "margin-top: 1.75em;",
-              # load example data instead of plot data:
-              #actionButton(ns("loadExampleDf"), "Load Example Data"),
-              actionButton(ns("apply"), "Run", disabled = TRUE)
-            )
-          ),
-          tags$hr())
+  tagList(
+    tags$br(),
+    tags$h4("MCP Run"),
+    fluidRow(
+      column(
+        3,
+        numericInput(ns("adapt"), "Burn in length", value = 5000),
+        helpText("Increase for better conversion (makes the run slower).")
+      ),
+      column(3, numericInput(
+        ns("chains"),
+        "Number of chains",
+        value = 3,
+        min = 1
+      )),
+      column(
+        3,
+        numericInput(
+          ns("iter"),
+          "Number of iterations",
+          value = 3000,
+          min = 1
+        )
+      ),
+      column(
+        3,
+        align = "right",
+        style = "margin-top: 1.75em;",
+        # load example data instead of plot data:
+        #actionButton(ns("loadExampleDf"), "Load Example Data"),
+        actionButton(ns("apply"), "Run", disabled = TRUE)
+      )
+    ),
+    tags$hr()
+  )
 }
 
 #' MCP Modeling Server

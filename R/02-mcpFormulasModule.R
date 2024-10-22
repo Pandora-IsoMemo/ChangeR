@@ -75,17 +75,24 @@ mcpFormulasServer <- function(id, uploaded_matrices) {
     )
 
     observe({
-      req(formulasList$segmentsMatrix(), formulasList$priorsMatrix())
+      req(formulasList$segmentsMatrix(),
+          formulasList$priorsMatrix())
 
-      logDebug("%s: Entering observe 'segmentsMatrix()', 'priorsMatrix()' ...", id)
-        newFormulasAndPriors <- getComb(segments = formulasList$segmentsMatrix(), priors = formulasList$priorsMatrix()) %>%
-          cleanComb() %>%
-          splitComb() %>%
-          setFormulasAndPriors() %>%
-          shinyTryCatch(errorTitle = "Error in creating MCP lists", warningTitle = "Warning in creating MCP lists")
+      logDebug("%s: Entering observe 'segmentsMatrix()', 'priorsMatrix()' ...",
+               id)
+      newFormulasAndPriors <- getComb(segments = formulasList$segmentsMatrix(),
+                                      priors = formulasList$priorsMatrix()) %>%
+        cleanComb() %>%
+        splitComb() %>%
+        setFormulasAndPriors() %>%
+        shinyTryCatch(errorTitle = "Error in creating MCP lists", warningTitle = "Warning in creating MCP lists")
 
-        formulasAndPriors(newFormulasAndPriors)
-    }) %>% bindEvent(list(formulasList$segmentsMatrix(), formulasList$priorsMatrix()), ignoreInit = TRUE)
+      formulasAndPriors(newFormulasAndPriors)
+    }) %>% bindEvent(list(
+      formulasList$segmentsMatrix(),
+      formulasList$priorsMatrix()
+    ),
+    ignoreInit = TRUE)
 
     formulasList$formulasAndPriors <- reactive({
       req(formulasAndPriors())

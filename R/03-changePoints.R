@@ -235,15 +235,15 @@ compareWithHeuristic <- function(fit) {
 
   comparison <- cbind(comparison, numEntries)
   # calculate the ratio and use ifelse function to assign zero if division by zero occurs
-  new_column <- abs(ifelse(comparison[,2] != 0, comparison[,1]/comparison[,2], 0))
+  new_column <- abs(ifelse(comparison[, 2] != 0, comparison[, 1] / comparison[, 2], 0))
   comparison <- cbind(comparison, new_column)
 
   # Remove rows where the last column value is bigger than 5
-  comparison <- comparison[comparison[,10] < 5, , drop = FALSE]
+  comparison <- comparison[comparison[, 10] < 5, , drop = FALSE]
 
   #Order by lowest number of model parameters and for equal number of parameters by higher elpd_diff value
   if (nrow(comparison) > 1) {
-    comparison <- comparison[order(comparison[,9], -comparison[,1]),]
+    comparison <- comparison[order(comparison[, 9], -comparison[, 1]), ]
     comparison <- cbind(comparison, "Rank" = 1:nrow(comparison))
   }
 

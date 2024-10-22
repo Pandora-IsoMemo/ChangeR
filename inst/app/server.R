@@ -1,5 +1,5 @@
 shinyServer(function(input, output, session) {
-  options(shiny.maxRequestSize = 400*1024^2)
+  options(shiny.maxRequestSize = 400 * 1024 ^ 2)
 
   uploaded_notes <- reactiveVal(NULL)
   uploaded_inputs <- reactiveVal(NULL)
@@ -16,25 +16,27 @@ shinyServer(function(input, output, session) {
   mcpFitList <- changePointsServer("changePoints", file_data, uploaded_matrices)
 
   ## Down- / Upload Session ----
-  DataTools::downloadModelServer("modelDownload",
-                                 dat = reactive(reactiveValuesToList(file_data)),
-                                 inputs = input,
-                                 model = mcpFitList,
-                                 rPackageName = config()[["rPackageName"]],
-                                 fileExtension = config()[["fileExtension"]],
-                                 modelNotes = uploaded_notes,
-                                 triggerUpdate = reactive(TRUE))
+  DataTools::downloadModelServer(
+    "modelDownload",
+    dat = reactive(reactiveValuesToList(file_data)),
+    inputs = input,
+    model = mcpFitList,
+    rPackageName = config()[["rPackageName"]],
+    fileExtension = config()[["fileExtension"]],
+    modelNotes = uploaded_notes,
+    triggerUpdate = reactive(TRUE)
+  )
 
-  uploadedValues <- DataTools::importServer("modelUpload",
-                                            title = "Import Model",
-                                            importType = "model",
-                                            ckanFileTypes = config()[["ckanModelTypes"]],
-                                            ignoreWarnings = TRUE,
-                                            defaultSource = config()[["defaultSourceModel"]],
-                                            fileExtension = config()[["fileExtension"]],
-                                            options = DataTools::importOptions(
-                                              rPackageName = config()[["rPackageName"]]
-                                            ))
+  uploadedValues <- DataTools::importServer(
+    "modelUpload",
+    title = "Import Model",
+    importType = "model",
+    ckanFileTypes = config()[["ckanModelTypes"]],
+    ignoreWarnings = TRUE,
+    defaultSource = config()[["defaultSourceModel"]],
+    fileExtension = config()[["fileExtension"]],
+    options = DataTools::importOptions(rPackageName = config()[["rPackageName"]])
+  )
 
   observe({
     req(length(uploadedValues()) > 0)

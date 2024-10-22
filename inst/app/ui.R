@@ -16,14 +16,14 @@ tagList(
             ## left sidebar ----
             width = 2,
             style = "position:fixed; width:15%; max-width:350px; overflow-y:auto; height:85%",
-            DataTools::dataUI(id = "data", title = "Data"), # import of data
-            DataTools::importUI("modelUpload", label = "Import Model", title = "Session"), # import of session
+            # import of data
+            DataTools::dataUI(id = "data", title = "Data"),
+            # import and downloadof session
+            DataTools::importUI("modelUpload", label = "Import Model", title = "Session"),
             DataTools::downloadModelUI("modelDownload", label = "Download Model") # download of session
           ),
-          mainPanel(
-            ## main panel ----
-            changePointsUI("changePoints")
-          )
+          mainPanel(## main panel ----
+                    changePointsUI("changePoints"))
         )
       )
     )

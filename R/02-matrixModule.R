@@ -122,10 +122,7 @@ matrixServer <- function(id,
       bindEvent(list(input[["rows"]], input[["cols"]]), ignoreInit = TRUE)
 
     output$outputMatrix <- renderTable({
-      validate(need(
-        dataMatrix(),
-        "Please click 'Set' first or load 'Example'"
-      ))
+      validate(need(dataMatrix(), "Please click 'Set' first or load 'Example'"))
       dataMatrix()
     }, rownames = TRUE)
 
