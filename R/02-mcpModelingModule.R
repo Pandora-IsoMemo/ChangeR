@@ -184,9 +184,6 @@ mcpShowSingleModelServer <- function(id,
                                      formulasAndPriors,
                                      mcpFitList) {
   moduleServer(id, function(input, output, session) {
-    ns <- session$ns
-    mcpModel <- reactiveVal()
-
     observe({
       logDebug("%s: Entering observe 'mcpFitList()' ...", id)
 
@@ -203,21 +200,12 @@ mcpShowSingleModelServer <- function(id,
     }) %>%
       bindEvent(mcpFitList())
 
-    observe({
-      req(mcpFitList(), input[["showModel"]])
-      logDebug("%s: Entering observe 'input$showModel' ...", id)
-
-      res <- mcpFitList()[[as.numeric(input[["showModel"]])]]
-      mcpModel(res)
-    }) %>% bindEvent(input[["showModel"]])
-
     mcpOutServer(
       id = "summary",
       formulasAndPriors = formulasAndPriors,
       mcpData = mcpData,
       mcpFitList = mcpFitList,
       mcpModelName = reactive(input[["showModel"]]),
-      mcpModel = mcpModel,
       mcpOutFUN = "summary",
       renderFUN = renderPrint
     )
@@ -228,7 +216,6 @@ mcpShowSingleModelServer <- function(id,
       mcpData = mcpData,
       mcpFitList = mcpFitList,
       mcpModelName = reactive(input[["showModel"]]),
-      mcpModel = mcpModel,
       mcpOutFUN = "waic",
       renderFUN = renderPrint
     )
@@ -239,7 +226,6 @@ mcpShowSingleModelServer <- function(id,
       mcpData = mcpData,
       mcpFitList = mcpFitList,
       mcpModelName = reactive(input[["showModel"]]),
-      mcpModel = mcpModel,
       mcpOutFUN = "plot",
       renderFUN = renderPlot
     )
@@ -286,7 +272,6 @@ mcpOutUI <- function(id,
 #' @param mcpData The reactive mcp data
 #' @param mcpFitList The reactive mcp fit list
 #' @param mcpModelName The reactive mcp model name
-#' @param mcpModel The reactive mcp model
 #' @param mcpOutFUN The output function, either "summary", "waic" or "plot"
 #' @param renderFUN The render function, either renderPrint or renderPlot
 mcpOutServer <- function(id,
@@ -294,11 +279,19 @@ mcpOutServer <- function(id,
                          mcpData,
                          mcpFitList,
                          mcpModelName,
-                         mcpModel,
                          mcpOutFUN,
                          renderFUN = renderPrint) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+    mcpModel <- reactiveVal()
+
+    observe({
+      req(mcpFitList(), mcpModelName())
+      logDebug("%s: Entering observe 'input$showModel' ...", id)
+
+      res <- mcpFitList()[[as.numeric(mcpModelName())]]
+      mcpModel(res)
+    }) %>% bindEvent(mcpModelName())
 
     mcpOutFUNParams <- reactive({
       ifelse(is.null(input[["width"]]), list(), list(width = input[["width"]]))
