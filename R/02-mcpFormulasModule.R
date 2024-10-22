@@ -147,6 +147,7 @@ infoButtonServer <- function(id,
                              link = NULL) {
   moduleServer(id, function(input, output, session) {
     observe({
+      logDebug("%s: Entering observe 'show_info' button ...", id)
       showModal(
         modalDialog(
           title = title,
