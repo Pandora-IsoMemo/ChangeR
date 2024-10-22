@@ -34,7 +34,8 @@ mcpFormulasUI <- function(id) {
 #' MCP Formulas Server
 #'
 #' @param id The module id
-mcpFormulasServer <- function(id, input_data, uploadedSegments = reactiveVal(), uploadedPriors = reactiveVal()) {
+#' @param uploaded_matrices (reactive) values of uploaded segments and priors matrices
+mcpFormulasServer <- function(id, uploaded_matrices) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     formulasList <- reactiveValues()
@@ -45,13 +46,13 @@ mcpFormulasServer <- function(id, input_data, uploadedSegments = reactiveVal(), 
       exampleFunction = readExampleMatrix,
       validateCellFunction = validateFormula,
       path = file.path("data", "example_breakPointSegments.csv"),
-      uploadedMatrix = uploadedSegments
+      uploadedMatrix = reactive(uploaded_matrices$segments)
     )
     formulasList$priorsMatrix <- matrixServer(
       "priors",
       exampleFunction = readExampleMatrix,
       path = file.path("data", "example_breakPointPriors.csv"),
-      uploadedMatrix = uploadedPriors
+      uploadedMatrix = reactive(uploaded_matrices$priors)
     )
 
     infoButtonServer(

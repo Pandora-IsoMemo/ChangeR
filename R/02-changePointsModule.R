@@ -7,25 +7,26 @@
 #' @export
 changePointsUI <- function(id) {
   ns <- NS(id)
-  tagList(tags$br(),
-          tabsetPanel(
-            id = ns("changePointsTabs"),
-            tabPanel("Data", tagList(
-              tags$br(),
-              DT::dataTableOutput(ns("data"))
-            )),
-            tabPanel("MCP Lists from Segments & Priors", mcpFormulasUI(ns("formulas"))),
-            tabPanel(
-              "MCP Modeling",
-              mcpDataUI(ns("mcpData")),
-              mcpModelingUI(ns("mcp")),
-              mcpShowSingleModelUI(ns("singleModelOut"))
-            ),
-            tabPanel("Comparison of Models", mcpCompareModelsUI(ns(
-              "compareModelsOut"
-            )))
-          ),
-          tags$br())
+  tagList(
+    tags$br(),
+    tabsetPanel(
+      id = ns("changePointsTabs"),
+      tabPanel("Data", tagList(tags$br(), DT::dataTableOutput(ns(
+        "data"
+      )))),
+      tabPanel("MCP Lists from Segments & Priors", mcpFormulasUI(ns("formulas"))),
+      tabPanel(
+        "MCP Modeling",
+        mcpDataUI(ns("mcpData")),
+        mcpModelingUI(ns("mcp")),
+        mcpShowSingleModelUI(ns("singleModelOut"))
+      ),
+      tabPanel("Comparison of Models", mcpCompareModelsUI(ns(
+        "compareModelsOut"
+      )))
+    ),
+    tags$br()
+  )
 }
 
 #' Change Points Server
@@ -33,43 +34,72 @@ changePointsUI <- function(id) {
 #' Server function of the module
 #'
 #' @param id The module id
-#' @param input_data The reactive input data
+#' @param file_data The reactive input data
+#' @inheritParams mcpFormulasServer
 #'
 #' @export
-changePointsServer <- function(id, input_data) {
+changePointsServer <- function(id, file_data, uploaded_matrices) {
   moduleServer(id, function(input, output, session) {
-
+    # render full input data
     output$data <- DT::renderDataTable({
-      validate(need(length(input_data$mainData) > 0, "Please load data first ..."))
+      validate(need(
+        length(file_data$mainData) > 0,
+        "Please load data first ..."
+      ))
 
-      input_data$mainData
+      file_data$mainData
     })
 
-    input_data$mcpData <- mcpDataServer(id = "mcpData", reactive(input_data$mainData))
+    # MCP Data ----
+    # select columns from input data
+    mcpData <- mcpDataServer(id = "mcpData", reactive(file_data$mainData))
 
-    formulasList <- mcpFormulasServer(
-      id = "formulas",
-      input_data = input_data#,
-      #uploadedSegments = input_data$uploadedSegments,
-      #uploadedPriors = input_data$uploadedPriors
+    # keep track of the mcpData
+    observe({
+      logDebug(sprintf("%s: Entering observe 'mcpData()'", id))
+      file_data$mcpData <- mcpData()
+    }) %>%
+      bindEvent(mcpData(), ignoreInit = TRUE)
+
+    # MCP Segments & Priors ----
+    formulasList <- mcpFormulasServer(id = "formulas", uploaded_matrices = uploaded_matrices)
+
+    # keep track of the segments and priors matrices (user inputs)
+    observe({
+      logDebug(sprintf(
+        "%s: Entering observe 'formulasList$segmentsMatrix()'",
+        id
+      ))
+      file_data$segmentsMatrix <- formulasList$segmentsMatrix()
+    }) %>%
+      bindEvent(formulasList$segmentsMatrix(), ignoreInit = TRUE)
+
+    observe({
+      logDebug(sprintf("%s: Entering observe 'formulasList$priorsMatrix()'", id))
+      file_data$priorsMatrix <- formulasList$priorsMatrix()
+    }) %>%
+      bindEvent(formulasList$priorsMatrix(), ignoreInit = TRUE)
+
+    # MCP Modeling ----
+    mcpFitList <- mcpModelingServer(
+      id = "mcp",
+      mcpData = mcpData,
+      formulasAndPriors = formulasList$formulasAndPriors
     )
-    #input_data$segmentsMatrix <- formulasList$segmentsMatrix
-    #input_data$priorsMatrix <- formulasList$priorsMatrix
 
-    mcpFitList <- mcpModelingServer(id = "mcp",
-                                    mcpData = input_data$mcpData,
-                                    formulasAndPriors = formulasList$formulasAndPriors)
-
+    # MCP Output ----
+    # Show single model output
     mcpShowSingleModelServer(
       id = "singleModelOut",
-      mcpData = input_data$mcpData,
+      mcpData = mcpData,
       formulasAndPriors = formulasList$formulasAndPriors,
       mcpFitList = mcpFitList
     )
 
+    # Compare models
     mcpCompareModelsServer(
       id = "compareModelsOut",
-      mcpData = input_data$mcpData,
+      mcpData = mcpData,
       formulasAndPriors = formulasList$formulasAndPriors,
       mcpFitList = mcpFitList
     )

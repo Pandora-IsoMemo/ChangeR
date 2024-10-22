@@ -7,15 +7,12 @@
 \usage{
 mcpFormulasUI(id)
 
-mcpFormulasServer(
-  id,
-  input_data,
-  uploadedSegments = reactiveVal(),
-  uploadedPriors = reactiveVal()
-)
+mcpFormulasServer(id, uploaded_matrices)
 }
 \arguments{
 \item{id}{The module id}
+
+\item{uploaded_matrices}{(reactive) values of uploaded segments and priors matrices}
 }
 \description{
 MCP Formulas UI

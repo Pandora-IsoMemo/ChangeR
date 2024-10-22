@@ -1,6 +1,10 @@
 shinyServer(function(input, output, session) {
   options(shiny.maxRequestSize = 400*1024^2)
 
+  uploaded_notes <- reactiveVal(NULL)
+  uploaded_inputs <- reactiveVal(NULL)
+  uploaded_matrices <- reactiveValues()
+
   file_data <- DataTools::dataServer(
     id = "data",
     path = file.path("data", "example_breakPoints.csv"),
@@ -9,19 +13,16 @@ shinyServer(function(input, output, session) {
     options = DataTools::importOptions(rPackageName = config()[["rPackageName"]])
   )
 
-  mcpFitList <- changePointsServer("changePoints", file_data)
+  mcpFitList <- changePointsServer("changePoints", file_data, uploaded_matrices)
 
   ## Down- / Upload Session ----
-  uploadedNotes <- reactiveVal(NULL)
-  uploadedInputs <- reactiveVal(NULL)
-
   DataTools::downloadModelServer("modelDownload",
                                  dat = reactive(reactiveValuesToList(file_data)),
                                  inputs = input,
                                  model = mcpFitList,
                                  rPackageName = config()[["rPackageName"]],
                                  fileExtension = config()[["fileExtension"]],
-                                 modelNotes = uploadedNotes,
+                                 modelNotes = uploaded_notes,
                                  triggerUpdate = reactive(TRUE))
 
   uploadedValues <- DataTools::importServer("modelUpload",
@@ -39,7 +40,7 @@ shinyServer(function(input, output, session) {
     req(length(uploadedValues()) > 0)
 
     # update notes in tab down-/upload ----
-    uploadedNotes(uploadedValues()[[1]][["notes"]])
+    uploaded_notes(uploadedValues()[[1]][["notes"]])
 
     # load data
     file_data <- file_data %>%
@@ -50,23 +51,25 @@ shinyServer(function(input, output, session) {
     }
 
     # extract model object(s)
-
     mcpFitList(uploadedValues()[[1]][["model"]])
 
-    uploadedInputs(uploadedValues()[[1]][["inputs"]])
+    # update user inputs
+    uploaded_inputs(uploadedValues()[[1]][["inputs"]])
+    uploaded_matrices[["segments"]] <- file_data[["segmentsMatrix"]]
+    uploaded_matrices[["priors"]] <- file_data[["priorsMatrix"]]
   }) %>%
     bindEvent(uploadedValues())
 
   observe({
-    req(!is.null(uploadedInputs()))
-    logDebug("server: Sending uploadedInputs.")
+    req(!is.null(uploaded_inputs()))
+    logDebug("server: Sending uploaded_inputs.")
 
     shinyTools::updateUserInputs(
       input = input,
       output = output,
       session = session,
-      userInputs = uploadedInputs()[["inputs"]]
+      userInputs = uploaded_inputs()[["inputs"]]
     )
-  }) %>% bindEvent(uploadedInputs())
+  }) %>% bindEvent(uploaded_inputs())
 
 })

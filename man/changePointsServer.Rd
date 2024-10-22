@@ -7,12 +7,14 @@
 \usage{
 changePointsUI(id)
 
-changePointsServer(id, input_data)
+changePointsServer(id, file_data, uploaded_matrices)
 }
 \arguments{
 \item{id}{The module id}
 
-\item{input_data}{The reactive input data}
+\item{file_data}{The reactive input data}
+
+\item{uploaded_matrices}{(reactive) values of uploaded segments and priors matrices}
 }
 \description{
 UI of the module
