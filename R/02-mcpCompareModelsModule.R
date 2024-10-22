@@ -8,7 +8,10 @@ mcpCompareModelsUI <- function(id) {
 
   tagList(
     tags$br(),
-    selectInput(ns("method"), "Method", c("loo", "waic", "heuristic")),
+    fluidRow(column(6, selectInput(ns("method"), "Method", c("loo", "waic", "heuristic"))),
+             column(6, align = "right",
+                    dataExportButton(ns("exportData"), label = "Export Data")
+    )),
     tags$br(),
     verbatimTextOutput(ns("compareModels")) %>% withSpinner(color = "#20c997")
   )
@@ -25,13 +28,8 @@ mcpCompareModelsServer <- function(id,
     ns <- session$ns
     compareModels <- reactiveVal()
 
-    output$compareModels <- renderPrint({
-      validate(need(
-        formulasAndPriors(),
-        "Please 'Create MCP Lists' and 'Run MCP' first ..."
-      ))
-      validate(need(mcpData(), "Please load 'Plot Data' and 'Run MCP' first ..."))
-      validate(need(mcpFitList(), "Please 'Run MCP' first ..."))
+    out_content <- reactive({
+      if (is.null(mcpFitList())) return(NULL)
 
       compareFUN <- switch(input[["method"]],
                            loo = compareWithLoo,
@@ -42,5 +40,23 @@ mcpCompareModelsServer <- function(id,
         compareFUN() %>%
         shinyTryCatch(errorTitle = "Error in model comparison", warningTitle = "Warning in model comparison")
     })
+
+    output$compareModels <- renderPrint({
+      validate(need(
+        formulasAndPriors(),
+        "Please 'Create MCP Lists' and 'Run MCP' first ..."
+      ))
+      validate(need(mcpData(), "Please load 'Plot Data' and 'Run MCP' first ..."))
+      validate(need(mcpFitList(), "Please 'Run MCP' first ..."))
+
+      out_content()
+    })
+
+    # filename is not yet reactive
+    dataExportServer("exportData",
+                                 dataFun = reactive(function() {
+                                   as.data.frame(out_content())
+                                 }),
+                                 filename = paste(gsub("-", "", Sys.Date()), input[["method"]], sep = "_"))
   })
 }
