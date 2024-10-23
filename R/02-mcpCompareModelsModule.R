@@ -52,11 +52,10 @@ mcpCompareModelsServer <- function(id,
       out_content()
     })
 
-    # filename is not yet reactive
     dataExportServer("exportData",
                                  dataFun = reactive(function() {
                                    as.data.frame(out_content())
                                  }),
-                                 filename = paste(gsub("-", "", Sys.Date()), input[["method"]], sep = "_"))
+                                 filename = paste("model_comparison", input[["method"]], sep = "_"))
   })
 }

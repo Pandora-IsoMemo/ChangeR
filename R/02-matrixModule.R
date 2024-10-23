@@ -38,6 +38,11 @@ matrixUI <- function(id,
         )
       ),
       column(
+        width = 1,
+        style = "margin-top: 1.75em;",
+        actionButton(ns("new"), "New")
+      ),
+      column(
         width = 2,
         selectInput(
           ns("cellID"),
@@ -47,12 +52,11 @@ matrixUI <- function(id,
         )
       ),
       column(
-        width = 3,
+        width = 2,
         textInput(ns("cell"), "Cell content", value = defaultCellContent)
       ),
       column(
         width = 1,
-        align = "right",
         style = "margin-top: 1.75em;",
         actionButton(ns("set"), "Set")
       ),
@@ -104,7 +108,7 @@ matrixServer <- function(id,
     observe({
       # define empty matrix with number of rows and columns inputs
       req(input[["rows"]], input[["cols"]])
-      logDebug("%s: Entering observe 'input$rows', 'input$cols' ...", id)
+      logDebug("%s: Entering observe 'input$new' ...", id)
 
       nrow <- input[["rows"]] %>% as.numeric()
       ncol <- input[["cols"]] %>% as.numeric()
@@ -116,13 +120,15 @@ matrixServer <- function(id,
       )
       colnames(new_matrix) <- 1:ncol
       rownames(new_matrix) <- 1:nrow
-      dataMatrix(new_matrix)
       updateSelectInput(session, "cellID", choices = getCellChoices(nrow = nrow, ncol = ncol))
+      dataMatrix(new_matrix)
     }) %>%
-      bindEvent(list(input[["rows"]], input[["cols"]]), ignoreInit = TRUE)
+      bindEvent(input[["new"]])
+
+    ## we need to update no of rows/columns correctly for the example!!! <----
 
     output$outputMatrix <- renderTable({
-      validate(need(dataMatrix(), "Please click 'Set' first or load 'Example'"))
+      validate(need(length(dataMatrix()), "Please click 'New' first or load 'Example'"))
       dataMatrix()
     }, rownames = TRUE)
 
@@ -152,6 +158,8 @@ matrixServer <- function(id,
 
       newMatrix <- exampleFunction(...)
       dataMatrix(newMatrix)
+      updateSelectInput(session, "rows", selected = nrow(newMatrix))
+      updateSelectInput(session, "cols", selected = ncol(newMatrix))
       updateSelectInput(session, "cellID", choices = getCellChoices(
         nrow = nrow(newMatrix),
         ncol = ncol(newMatrix)

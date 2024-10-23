@@ -325,44 +325,44 @@ mcpOutServer <- function(id,
       if (mcpOutFUN %in% c("plot")) {
         plotExportButton(ns("download"), "Export")
       } else {
-        downloadButton(ns("download"), "Export", icon = NULL)
+        textExportButton(ns("download"), "Export")
       }
     })
 
     if (mcpOutFUN %in% c("plot")) {
-      # filename is not yet reactive in plotExportServer
       plotExportServer("download",
-                       filename = sprintf("model_%s", mcpOutFUN),
+                       filename = sprintf("model_%s_%s", mcpModelName(), mcpOutFUN),
                        plotFun = reactive({
         function() {
-          out_content()
-        }
-      }))
-    } else {
-      # for debugging
-      # observe({
-      #   req(mcpModel(), mcpOutFUN != "plot")
-      #   browser()
-      #   do.call(mcpOutFUN, c(list(mcpModel()), mcpOutFUNParams())) %>% capture.output()
-      # })
-
-      output[["download"]] <- downloadHandler(
-        filename = function() {
-          sprintf("model_%s_%s.txt", mcpModelName(), mcpOutFUN)
-        },
-        content = function(file) {
           if (is.null(mcpModel()))
             return(NULL)
 
           # cannot use out_content() directly, because some output content gets lost
-          #res <- capture.output(out_content()) # !NOT USE!
-
-          res <- do.call(mcpOutFUN, c(list(mcpModel()), mcpOutFUNParams())) %>%
-            capture.output()
-
-          writeLines(res, file)
+          #out_content() # !NOT USE!
+          do.call(mcpOutFUN, c(list(mcpModel()), mcpOutFUNParams())) %>%
+            shinyTryCatch(
+              errorTitle = sprintf("Error during creating '%s' output", id),
+              warningTitle = sprintf("Warning during creating '%s' output", id)
+            )
         }
-      )
+      }))
+    } else {
+      textExportServer("download",
+                       filename = sprintf("model_%s_%s", mcpModelName(), mcpOutFUN),
+                       outFun = reactive({
+                         function() {
+                               if (is.null(mcpModel()))
+                                 return(NULL)
+
+                               # cannot use out_content() directly, because some output content gets lost
+                               #out_content() # !NOT USE!
+                               do.call(mcpOutFUN, c(list(mcpModel()), mcpOutFUNParams())) %>%
+                                 shinyTryCatch(
+                                   errorTitle = sprintf("Error during creating '%s' output", id),
+                                   warningTitle = sprintf("Warning during creating '%s' output", id)
+                                 )
+                         }
+                       }))
     }
   })
 }

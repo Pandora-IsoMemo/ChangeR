@@ -35,7 +35,7 @@ mcpFormulasUI <- function(id) {
 #'
 #' @param id The module id
 #' @param uploaded_matrices (reactive) values of uploaded segments and priors matrices
-mcpFormulasServer <- function(id, uploaded_matrices) {
+mcpFormulasServer <- function(id, uploaded_matrices = reactiveValues()) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     formulasList <- reactiveValues()
@@ -91,11 +91,9 @@ mcpFormulasServer <- function(id, uploaded_matrices) {
     }) %>% bindEvent(list(
       formulasList$segmentsMatrix(),
       formulasList$priorsMatrix()
-    ),
-    ignoreInit = TRUE)
+    ))
 
     formulasList$formulasAndPriors <- reactive({
-      req(formulasAndPriors())
       formulasAndPriors()
     })
 

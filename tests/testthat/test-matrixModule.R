@@ -14,15 +14,8 @@ test_that("matrixServer initializes and handles cell updates correctly", {
     matrixServer,
     args = list(exampleFunction = example_function, validateCellFunction = validate_function),
     {
-      # Check that the matrix initializes with 1 row and 1 column by default
-      session$setInputs(rows = 1, cols = 1)
-      session$flushReact()
-
-      expect_equal(nrow(session$returned()), 1)
-      expect_equal(ncol(session$returned()), 1)
-
-      # Update the matrix dimensions to 2x2 and check that the matrix updates accordingly
-      session$setInputs(rows = 2, cols = 2)
+      # Set the matrix dimensions to 2x2 and check that the matrix updates accordingly
+      session$setInputs(rows = 2, cols = 2, new = 1)
       session$flushReact()
 
       expect_equal(nrow(session$returned()), 2)

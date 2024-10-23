@@ -7,7 +7,7 @@
 \usage{
 mcpFormulasUI(id)
 
-mcpFormulasServer(id, uploaded_matrices)
+mcpFormulasServer(id, uploaded_matrices = reactiveValues())
 }
 \arguments{
 \item{id}{The module id}

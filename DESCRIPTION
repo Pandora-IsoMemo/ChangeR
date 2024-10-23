@@ -17,7 +17,7 @@ Imports:
   shiny,
   shinycssloaders,
   shinyjs,
-  shinyTools (>= 24.03.1),
+  shinyTools (>= 24.10.1),
   stats,
   utils,
   yaml,
