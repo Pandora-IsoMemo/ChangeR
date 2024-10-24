@@ -7,7 +7,7 @@
 \usage{
 changePointsUI(id)
 
-changePointsServer(id, file_data, uploaded_matrices)
+changePointsServer(id, file_data, uploaded_matrices = reactiveValues())
 }
 \arguments{
 \item{id}{The module id}

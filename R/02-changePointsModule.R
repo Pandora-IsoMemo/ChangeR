@@ -38,7 +38,7 @@ changePointsUI <- function(id) {
 #' @inheritParams mcpFormulasServer
 #'
 #' @export
-changePointsServer <- function(id, file_data, uploaded_matrices) {
+changePointsServer <- function(id, file_data, uploaded_matrices = reactiveValues()) {
   moduleServer(id, function(input, output, session) {
     # render full input data
     output$data <- DT::renderDataTable({
