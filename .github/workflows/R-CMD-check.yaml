@@ -42,6 +42,16 @@ jobs:
           use-public-rspm: true
           extra-repositories: https://Pandora-IsoMemo.github.io/drat/
 
+      - name: Install JAGS on macOS
+        if: matrix.config.os == 'macos-latest'
+        run: brew install jags
+
+      - name: Install JAGS on Windows
+        if: matrix.config.os == 'windows-latest'
+        run: |
+          choco install jags -y
+          echo "::add-path::C:\\Program Files\\JAGS\\JAGS-4.3.0\\bin"
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
