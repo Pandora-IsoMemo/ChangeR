@@ -37,3 +37,10 @@ test_that("matrixServer initializes and handles cell updates correctly", {
     }
   )
 })
+
+testthat::test_that("getCellChoices", {
+  testthat::expect_equal(getCellChoices(nrow = 3, ncol = 2), structure(
+    1:6,
+    names = c("(1, 1)", "(2, 1)", "(3, 1)", "(1, 2)", "(2, 2)", "(3, 2)")
+  ))
+})

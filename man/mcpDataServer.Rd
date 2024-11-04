@@ -7,12 +7,15 @@
 \usage{
 mcpDataUI(id)
 
-mcpDataServer(id, file_data)
+mcpDataServer(id, file_data, mcp_columns = c(x = "", y = ""))
 }
 \arguments{
 \item{id}{module id}
 
 \item{file_data}{reactive file data}
+
+\item{mcp_columns}{(character) a character vector containing the default x and y columns for MCP modelling.
+The first entry corresponds to the x column name, and the second entry corresponds to the y column name.}
 }
 \description{
 UI function of mcpData module
