@@ -30,3 +30,15 @@ test_that("MCP Formulas Server works correctly", {
     }
   )
 })
+
+testthat::test_that("validateFormula", {
+  testthat::expect_equal(validateFormula("y ~ x + 1"), "y ~ x + 1")
+  testthat::expect_equal(validateFormula("~ 1 + x"), "~ 1 + x")
+  testthat::expect_equal(validateFormula("~ I(x^2) + exp(x) + sin(x)"),
+                         "~ I(x^2) + exp(x) + sin(x)")
+  testthat::expect_equal(validateFormula("~sigma(1)"), "~sigma(1)")
+  testthat::expect_equal(validateFormula("~sigma(rel(1) + I(x^2))"),
+                         "~sigma(rel(1) + I(x^2))")
+  testthat::expect_equal(validateFormula("~ar(1)"), "~ar(1)")
+  testthat::expect_warning(validateFormula("y <- x + 1"))
+})

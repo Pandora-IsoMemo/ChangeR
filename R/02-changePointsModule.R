@@ -36,9 +36,10 @@ changePointsUI <- function(id) {
 #' @param id The module id
 #' @param file_data The reactive input data
 #' @inheritParams mcpFormulasServer
+#' @inheritParams mcpDataServer
 #'
 #' @export
-changePointsServer <- function(id, file_data, uploaded_matrices = reactiveValues()) {
+changePointsServer <- function(id, file_data, uploaded_matrices = reactiveValues(), mcp_columns = c(x = "", y = "")) {
   moduleServer(id, function(input, output, session) {
     # render full input data
     output$data <- DT::renderDataTable({
@@ -52,7 +53,7 @@ changePointsServer <- function(id, file_data, uploaded_matrices = reactiveValues
 
     # MCP Data ----
     # select columns from input data
-    mcpData <- mcpDataServer(id = "mcpData", reactive(file_data$mainData))
+    mcpData <- mcpDataServer(id = "mcpData", reactive(file_data$mainData), mcp_columns = mcp_columns)
 
     # keep track of the mcpData
     observe({

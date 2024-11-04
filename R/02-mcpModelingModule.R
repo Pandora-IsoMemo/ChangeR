@@ -16,36 +16,70 @@ mcpDataUI <- function(id) {
 #'
 #' @param id module id
 #' @param file_data reactive file data
-mcpDataServer <- function(id, file_data) {
+#' @param mcp_columns (character) a character vector containing the default x and y columns for MCP modelling.
+#' The first entry corresponds to the x column name, and the second entry corresponds to the y column name.
+mcpDataServer <- function(id, file_data, mcp_columns = c(x = "", y = "")) {
   moduleServer(id, function(input, output, session) {
+    colnames_file_data <- reactiveVal()
     mcpData <- reactiveVal()
 
     observe({
-      req(nrow(file_data()) > 0, ncol(file_data()) > 0)
       logDebug("%s: Entering observe 'file_data()' ...", id)
-      # update column select inputs
-      updateSelectInput(session, "x", choices = colnames(file_data()))
 
-      if (ncol(file_data()) == 1) {
-        updateSelectInput(session, "y", choices = c("Data has only one column ..." = ""))
-      } else {
-        updateSelectInput(
-          session,
-          "y",
-          choices = colnames(file_data()),
-          selected = colnames(file_data())[2]
-        )
+      # reset if file_data is empty
+      if (length(file_data()) == 0 || nrow(file_data()) == 0 || ncol(file_data()) == 0) {
+        colnames_file_data(NULL)
+        # reset inputs
+        updateSelectInput(session, "x", choices = c("Please load data first ..." = ""))
+        updateSelectInput(session, "y", choices = c("Please load data first ..." = ""))
+        mcpData(NULL)
       }
-    }) %>% bindEvent(file_data())
+
+      req(nrow(file_data()) > 0, ncol(file_data()) > 0)
+      # update colnames if new
+      if (is.null(colnames_file_data()) ||
+          !identical(colnames_file_data(), colnames(file_data()))) {
+        colnames_file_data(colnames(file_data()))
+
+        # set selected value
+        selected_x <- ifelse(
+          (length(mcp_columns) > 0) && !is.null(mcp_columns[["x"]]) && mcp_columns[["x"]] %in% colnames_file_data(),
+          mcp_columns[["x"]],
+          colnames_file_data()[1]
+        )
+        # update x input
+        updateSelectInput(session,
+                          "x",
+                          choices = colnames_file_data(),
+                          selected = selected_x)
+
+        if (length(colnames_file_data()) == 0) {
+          updateSelectInput(session, "y", choices = c("Data has only one column ..." = ""))
+        } else {
+          # set selected value
+          selected_y <- ifelse(
+            (length(mcp_columns) > 0) && !is.null(mcp_columns[["y"]]) && mcp_columns[["y"]] %in% colnames_file_data(),
+            mcp_columns[["y"]],
+            colnames_file_data()[2]
+          )
+          # update y input
+          updateSelectInput(session,
+                            "y",
+                            choices = colnames_file_data(),
+                            selected = selected_y)
+      }
+      }
+
+    }) %>% bindEvent(file_data(), ignoreNULL = FALSE)
 
     observe({
-      req(input[["x"]], input[["y"]])
       logDebug("%s: Entering observe 'input$x', 'input$y' ...", id)
 
+      req(input[["x"]], input[["y"]])
       # select relevant columns
       newData <- file_data()[, c(input[["x"]], input[["y"]])]
       # x column as numeric
-      newData[, input[["x"]]] <- as.numeric(newData[, input[["x"]]])
+      newData[[input[["x"]]]] <- as.numeric(newData[[input[["x"]]]])
       # rename columns
       colnames(newData) <- c("x", "y")
       # remove rows with NA
@@ -189,10 +223,12 @@ mcpShowSingleModelServer <- function(id,
 
       mcpModels <- seq_along(mcpFitList())
       names(mcpModels) <- paste("Model", mcpModels)
-      if (length(mcpModels) > 0)
+      if (length(mcpModels) > 0) {
         mcpSelected <- 1
-      else
+      } else {
         mcpSelected <- NULL
+      }
+
       updateSelectInput(session,
                         "showModel",
                         choices = mcpModels,
