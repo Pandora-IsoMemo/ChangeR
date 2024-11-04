@@ -49,9 +49,9 @@ jobs:
       - name: Install JAGS on Windows
         if: matrix.config.os == 'windows-latest'
         run: |
-          curl -L -o jags-installer.exe https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Windows/JAGS-4.3.0.exe/download
-          Start-Process -Wait -FilePath jags-installer.exe -ArgumentList '/S'
-          echo "::add-path::C:\\Program Files\\JAGS\\JAGS-4.3.0\\bin"
+          curl -L -o jags-installer.exe http://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/4.3.0/JAGS-4.3.0.exe/download
+          Start-Process -Wait -FilePath jags-installer.exe -ArgumentList "/S"
+          echo "C:\\Program Files\\JAGS\\JAGS-4.3.0\\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
