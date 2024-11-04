@@ -11,6 +11,4 @@ libmagick++-dev \
 && echo "options(repos = c(getOption('repos'), PANDORA = 'https://Pandora-IsoMemo.github.io/drat/'))" >> /usr/local/lib/R/etc/Rprofile.site \
 && installPackage
 
-RUN jags --version
-
 CMD ["Rscript", "-e", "library(ChangeR);startApplication(3838)"]

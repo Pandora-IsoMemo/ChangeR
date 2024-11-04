@@ -49,7 +49,8 @@ jobs:
       - name: Install JAGS on Windows
         if: matrix.config.os == 'windows-latest'
         run: |
-          choco install jags -y
+          curl -L -o jags-installer.exe https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Windows/JAGS-4.3.0.exe/download
+          Start-Process -Wait -FilePath jags-installer.exe -ArgumentList '/S'
           echo "::add-path::C:\\Program Files\\JAGS\\JAGS-4.3.0\\bin"
 
       - uses: r-lib/actions/setup-r-dependencies@v2
