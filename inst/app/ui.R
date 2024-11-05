@@ -28,7 +28,7 @@ tagList(
       )
     )
   ),
-  shinyTools::headerButtonsUI(id = "header", help_link = ""),
+  shinyTools::headerButtonsUI(id = "header", help_link = "https://pandora-isomemo.github.io/ChangeR/"),
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
   ),
