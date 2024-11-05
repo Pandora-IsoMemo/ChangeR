@@ -1,6 +1,6 @@
 Package: ChangeR
 Title: Identify and display change points
-Version: 24.11.0
+Version: 24.11.0.1
 Authors@R: c(person("Runge", "Antonia", email = "antonia.runge@inwt-statistics.de", role = c("aut", "cre")))
 Description: An App to identify isotopic change points in human tooth sections using a ChangeR algorithm (v 0.01) that is based on MCP.
 License: GPL (>= 3)

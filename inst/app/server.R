@@ -38,15 +38,14 @@ shinyServer(function(input, output, session) {
     options = DataTools::importOptions(rPackageName = config()[["rPackageName"]])
   )
 
-  observe({
+  observeEvent(uploadedValues(), {
     req(length(uploadedValues()) > 0)
 
     # update notes in tab down-/upload ----
     uploaded_notes(uploadedValues()[[1]][["notes"]])
 
     # load data
-    file_data <- file_data %>%
-      DataTools::resetData()
+    file_data <- DataTools::resetData(file_data)
 
     for (entry in names(uploadedValues()[[1]][["data"]])) {
       file_data[[entry]] <- uploadedValues()[[1]][["data"]][[entry]]
@@ -59,10 +58,9 @@ shinyServer(function(input, output, session) {
     uploaded_inputs(uploadedValues()[[1]][["inputs"]])
     uploaded_matrices[["segments"]] <- file_data[["segmentsMatrix"]]
     uploaded_matrices[["priors"]] <- file_data[["priorsMatrix"]]
-  }) %>%
-    bindEvent(uploadedValues())
+  })
 
-  observe({
+  observeEvent(uploaded_inputs(), {
     req(!is.null(uploaded_inputs()))
     logDebug("server: Sending uploaded_inputs.")
 
@@ -72,6 +70,5 @@ shinyServer(function(input, output, session) {
       session = session,
       userInputs = uploaded_inputs()[["inputs"]]
     )
-  }) %>% bindEvent(uploaded_inputs())
-
+  })
 })
