@@ -6,6 +6,7 @@
 #' @importFrom magrittr "%>%"
 #' @importFrom mcp mcp
 #' @importFrom shinycssloaders withSpinner
+#' @importFrom shinyjs disable enable
 #' @importFrom shinyTools dataExportButton dataExportServer plotExportButton plotExportServer
 #'  textExportButton textExportServer shinyTryCatch updateUserInputs
 #' @importFrom stats as.formula na.omit time

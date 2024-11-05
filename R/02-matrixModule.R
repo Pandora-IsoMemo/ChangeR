@@ -90,6 +90,7 @@ matrixServer <- function(id,
       x
   }
   moduleServer(id, function(input, output, session) {
+    ns <- session$ns
     dataMatrix <- reactiveVal()
 
     observe({
@@ -152,6 +153,13 @@ matrixServer <- function(id,
       updateSelectInput(session, "cellID", selected = newID)
     }) %>%
       bindEvent(input[["set"]])
+
+    if (length(exampleFunction(...)) == 0) {
+      logDebug("%s: No path to example data ...", id)
+
+      # disable example button
+      shinyjs::disable(ns("example"), asis = TRUE)
+    }
 
     observe({
       logDebug("%s: Entering observe 'input$example' ...", id)

@@ -113,7 +113,11 @@ mcpFormulasServer <- function(id, uploaded_matrices = reactiveValues()) {
 #'
 #' @param path path to example matrix
 readExampleMatrix <- function(path) {
+  if (length(path) == 0 || path == "" || !file.exists(path)) return(NULL)
+
   df <- read.csv(path)
+
+  if (nrow(df) == 0 || ncol(df) == 0) return(NULL)
 
   df[is.na(df)] <- ""
 
