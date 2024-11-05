@@ -62,7 +62,6 @@ shinyServer(function(input, output, session) {
 
   observeEvent(uploaded_inputs(), {
     req(!is.null(uploaded_inputs()))
-    logDebug("server: Sending uploaded_inputs.")
 
     shinyTools::updateUserInputs(
       input = input,
