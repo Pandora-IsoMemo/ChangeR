@@ -1,3 +1,8 @@
+# ChangeR 25.02.0
+
+## New Features
+- option to add custom points to the model plot
+
 # ChangeR 24.11.0
 
 ## New Features

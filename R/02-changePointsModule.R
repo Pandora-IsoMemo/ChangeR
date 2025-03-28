@@ -19,7 +19,7 @@ changePointsUI <- function(id) {
         "MCP Modeling",
         mcpDataUI(ns("mcpData")),
         mcpModelingUI(ns("mcp")),
-        mcpShowSingleModelUI(ns("singleModelOut"))
+        mcpModelSummaryUI(ns("singleModelOut"))
       ),
       tabPanel("Comparison of Models", mcpCompareModelsUI(ns(
         "compareModelsOut"
@@ -90,7 +90,7 @@ changePointsServer <- function(id, file_data, uploaded_matrices = reactiveValues
 
     # MCP Output ----
     # Show single model output
-    mcpShowSingleModelServer(
+    mcpModelSummaryServer(
       id = "singleModelOut",
       mcpData = mcpData,
       formulasAndPriors = formulasList$formulasAndPriors,
