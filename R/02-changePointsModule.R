@@ -17,8 +17,11 @@ changePointsUI <- function(id) {
       tabPanel("MCP Lists from Segments & Priors", mcpFormulasUI(ns("formulas"))),
       tabPanel(
         "MCP Modeling",
-        mcpDataUI(ns("mcpData")),
-        mcpModelingUI(ns("mcp")),
+        fluidRow(
+          column(6, mcpDataUI(ns("mcpData"))),
+          column(6, mcpModelingUI(ns("mcp")))
+        ),
+        tags$hr(),
         mcpModelSummaryUI(ns("singleModelOut"))
       ),
       tabPanel("Comparison of Models", mcpCompareModelsUI(ns(

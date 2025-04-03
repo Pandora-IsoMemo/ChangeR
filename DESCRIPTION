@@ -1,6 +1,6 @@
 Package: ChangeR
 Title: Identify and display change points
-Version: 25.02.0
+Version: 25.04.0
 Authors@R: c(
     person("Ricardo", "Fernandes", email = "fernandes@gea.mpg.de", role = c("aut", "cre")),
     person("Runge", "Antonia", email = "antonia.runge@inwt-statistics.de", role = c("aut"))

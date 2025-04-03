@@ -6,9 +6,9 @@
 mcpDataUI <- function(id) {
   ns <- NS(id)
   tagList(tags$br(), tags$h4("MCP Data"), fluidRow(column(
-    3, selectInput(ns("x"), "x column", choices = c("Please load data first ..." = ""))
+    6, selectInput(ns("x"), "X Column", choices = c("Please load data first ..." = ""))
   ), column(
-    3, selectInput(ns("y"), "y column", choices = c("Please load data first ..." = ""))
+    6, selectInput(ns("y"), "Y Column", choices = c("Please load data first ..." = ""))
   )))
 }
 
@@ -111,12 +111,11 @@ mcpModelingUI <- function(id) {
     fluidRow(
       column(
         3,
-        numericInput(ns("adapt"), "Burn in length", value = 5000),
-        helpText("Increase for better conversion (makes the run slower).")
+        numericInput(ns("adapt"), "Burn in Length", value = 5000)
       ),
       column(3, numericInput(
         ns("chains"),
-        "Number of chains",
+        "No. of Chains",
         value = 3,
         min = 1
       )),
@@ -124,7 +123,7 @@ mcpModelingUI <- function(id) {
         3,
         numericInput(
           ns("iter"),
-          "Number of iterations",
+          "No. of Iterations",
           value = 3000,
           min = 1
         )
@@ -138,7 +137,7 @@ mcpModelingUI <- function(id) {
         actionButton(ns("apply"), "Run", disabled = TRUE)
       )
     ),
-    tags$hr()
+    helpText("Increase 'Burn in length' for better conversion (makes the run slower).")
   )
 }
 
@@ -189,7 +188,7 @@ mcpModelSummaryUI <- function(id) {
   tagList(
     selectInput(
       ns("showModel"),
-      "Show MCP model",
+      "Show MCP Model",
       choices = c("'Run MCP' first ..." = "")
     ),
     tags$br(),
@@ -214,9 +213,9 @@ mcpModelSummaryUI <- function(id) {
         )
       )),
       tabPanel("Model Plot", tags$br(), fluidRow(
-        column(3, customPointsUI(ns(
+        column(4, customPointsUI(ns(
           "plot-custom_points"
-        ))), column(9, mcpOutUI(
+        ))), column(8, mcpOutUI(
           id = ns("plot"),
           title = "Model Plot",
           outFUN = plotOutput
