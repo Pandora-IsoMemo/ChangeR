@@ -6,9 +6,9 @@
 mcpDataUI <- function(id) {
   ns <- NS(id)
   tagList(tags$br(), tags$h4("MCP Data"), fluidRow(column(
-    3, selectInput(ns("x"), "x column", choices = c("Please load data first ..." = ""))
+    6, selectInput(ns("x"), "X Column", choices = c("Please load data first ..." = ""))
   ), column(
-    3, selectInput(ns("y"), "y column", choices = c("Please load data first ..." = ""))
+    6, selectInput(ns("y"), "Y Column", choices = c("Please load data first ..." = ""))
   )))
 }
 
@@ -27,7 +27,8 @@ mcpDataServer <- function(id, file_data, mcp_columns = c(x = "", y = "")) {
       logDebug("%s: Entering observe 'file_data()' ...", id)
 
       # reset if file_data is empty
-      if (length(file_data()) == 0 || nrow(file_data()) == 0 || ncol(file_data()) == 0) {
+      if (length(file_data()) == 0 ||
+          nrow(file_data()) == 0 || ncol(file_data()) == 0) {
         colnames_file_data(NULL)
         # reset inputs
         updateSelectInput(session, "x", choices = c("Please load data first ..." = ""))
@@ -43,7 +44,9 @@ mcpDataServer <- function(id, file_data, mcp_columns = c(x = "", y = "")) {
 
         # set selected value
         selected_x <- ifelse(
-          (length(mcp_columns) > 0) && !is.null(mcp_columns[["x"]]) && mcp_columns[["x"]] %in% colnames_file_data(),
+          (length(mcp_columns) > 0) &&
+            !is.null(mcp_columns[["x"]]) &&
+            mcp_columns[["x"]] %in% colnames_file_data(),
           mcp_columns[["x"]],
           colnames_file_data()[1]
         )
@@ -54,11 +57,15 @@ mcpDataServer <- function(id, file_data, mcp_columns = c(x = "", y = "")) {
                           selected = selected_x)
 
         if (length(colnames_file_data()) == 0) {
-          updateSelectInput(session, "y", choices = c("Data has only one column ..." = ""))
+          updateSelectInput(session,
+                            "y",
+                            choices = c("Data has only one column ..." = ""))
         } else {
           # set selected value
           selected_y <- ifelse(
-            (length(mcp_columns) > 0) && !is.null(mcp_columns[["y"]]) && mcp_columns[["y"]] %in% colnames_file_data(),
+            (length(mcp_columns) > 0) &&
+              !is.null(mcp_columns[["y"]]) &&
+              mcp_columns[["y"]] %in% colnames_file_data(),
             mcp_columns[["y"]],
             colnames_file_data()[2]
           )
@@ -67,7 +74,7 @@ mcpDataServer <- function(id, file_data, mcp_columns = c(x = "", y = "")) {
                             "y",
                             choices = colnames_file_data(),
                             selected = selected_y)
-      }
+        }
       }
 
     }) %>% bindEvent(file_data(), ignoreNULL = FALSE)
@@ -104,12 +111,11 @@ mcpModelingUI <- function(id) {
     fluidRow(
       column(
         3,
-        numericInput(ns("adapt"), "Burn in length", value = 5000),
-        helpText("Increase for better conversion (makes the run slower).")
+        numericInput(ns("adapt"), "Burn in Length", value = 5000)
       ),
       column(3, numericInput(
         ns("chains"),
-        "Number of chains",
+        "No. of Chains",
         value = 3,
         min = 1
       )),
@@ -117,7 +123,7 @@ mcpModelingUI <- function(id) {
         3,
         numericInput(
           ns("iter"),
-          "Number of iterations",
+          "No. of Iterations",
           value = 3000,
           min = 1
         )
@@ -131,7 +137,7 @@ mcpModelingUI <- function(id) {
         actionButton(ns("apply"), "Run", disabled = TRUE)
       )
     ),
-    tags$hr()
+    helpText("Increase 'Burn in length' for better conversion (makes the run slower).")
   )
 }
 
@@ -174,49 +180,58 @@ mcpModelingServer <- function(id, formulasAndPriors, mcpData) {
   })
 }
 
-#' MCP Show Single Model UI
+#' MCP Model Summary UI
 #'
-#' @rdname mcpShowSingleModelServer
-mcpShowSingleModelUI <- function(id) {
+#' @rdname mcpModelSummaryServer
+mcpModelSummaryUI <- function(id) {
   ns <- NS(id)
   tagList(
     selectInput(
       ns("showModel"),
-      "Show MCP model",
+      "Show MCP Model",
       choices = c("'Run MCP' first ..." = "")
     ),
     tags$br(),
-    fluidRow(column(
-      6,
-      mcpOutUI(
-        id = ns("summary"),
-        title = "Model Summary",
-        outFUN = verbatimTextOutput,
-        showWidth = TRUE
-      )
-    ), column(
-      6,
-      mcpOutUI(
-        id = ns("waic"),
-        title = "Model WAIC",
-        outFUN = verbatimTextOutput
-      )
-    )),
-    mcpOutUI(
-      id = ns("plot"),
-      title = "Model Plot",
-      outFUN = plotOutput
+    tabsetPanel(
+      id = ns("summaryTabset"),
+      tabPanel("Model Summary", tags$br(), fluidRow(
+        column(
+          6,
+          mcpOutUI(
+            id = ns("summary"),
+            title = "Model Summary",
+            outFUN = verbatimTextOutput,
+            showWidth = TRUE
+          )
+        ), column(
+          6,
+          mcpOutUI(
+            id = ns("waic"),
+            title = "Model WAIC",
+            outFUN = verbatimTextOutput
+          )
+        )
+      )),
+      tabPanel("Model Plot", tags$br(), fluidRow(
+        column(4, customPointsUI(ns(
+          "plot-custom_points"
+        ))), column(8, mcpOutUI(
+          id = ns("plot"),
+          title = "Model Plot",
+          outFUN = plotOutput
+        ))
+      ))
     )
   )
 }
 
-#' MCP Show Single Model Server
+#' MCP Model Summary Server
 #'
 #' @inheritParams mcpOutServer
-mcpShowSingleModelServer <- function(id,
-                                     mcpData,
-                                     formulasAndPriors,
-                                     mcpFitList) {
+mcpModelSummaryServer <- function(id,
+                                  mcpData,
+                                  formulasAndPriors,
+                                  mcpFitList) {
   moduleServer(id, function(input, output, session) {
     observe({
       logDebug("%s: Entering observe 'mcpFitList()' ...", id)
@@ -256,14 +271,16 @@ mcpShowSingleModelServer <- function(id,
       renderFUN = renderPrint
     )
 
-    mcpOutServer(
+    custom_points <- reactiveVal(list())
+    customPointsServer("plot-custom_points", custom_points = custom_points)
+
+    mcpPlotServer(
       id = "plot",
       formulasAndPriors = formulasAndPriors,
       mcpData = mcpData,
       mcpFitList = mcpFitList,
       mcpModelName = reactive(input[["showModel"]]),
-      mcpOutFUN = "plot",
-      renderFUN = renderPlot
+      custom_points = custom_points
     )
   })
 }
@@ -330,6 +347,7 @@ mcpOutServer <- function(id,
     }) %>% bindEvent(mcpModelName())
 
     mcpOutFUNParams <- reactive({
+      # set up list of arguments for mcpOutFUN
       ifelse(is.null(input[["width"]]), list(), list(width = input[["width"]]))
     })
 
@@ -366,39 +384,122 @@ mcpOutServer <- function(id,
     })
 
     if (mcpOutFUN %in% c("plot")) {
-      plotExportServer("download",
-                       filename = sprintf("model_%s_%s", mcpModelName(), mcpOutFUN),
-                       plotFun = reactive({
+      plotExportServer(
+        "download",
+        filename = sprintf("model_%s_%s", mcpModelName(), mcpOutFUN),
+        plotFun = reactive({
+          function() {
+            if (is.null(mcpModel()))
+              return(NULL)
+
+            # cannot use out_content() directly, because some output content gets lost
+            #out_content() # !NOT USE!
+            do.call(mcpOutFUN, c(list(mcpModel()), mcpOutFUNParams())) %>%
+              shinyTryCatch(
+                errorTitle = sprintf("Error during creating '%s' output", id),
+                warningTitle = sprintf("Warning during creating '%s' output", id)
+              )
+          }
+        })
+      )
+    } else {
+      textExportServer(
+        "download",
+        filename = sprintf("model_%s_%s", mcpModelName(), mcpOutFUN),
+        outFun = reactive({
+          function() {
+            if (is.null(mcpModel()))
+              return(NULL)
+
+            # cannot use out_content() directly, because some output content gets lost
+            #out_content() # !NOT USE!
+            do.call(mcpOutFUN, c(list(mcpModel()), mcpOutFUNParams())) %>%
+              shinyTryCatch(
+                errorTitle = sprintf("Error during creating '%s' output", id),
+                warningTitle = sprintf("Warning during creating '%s' output", id)
+              )
+          }
+        })
+      )
+    }
+  })
+}
+
+# MCP Plot Server
+#
+# @param id The module id
+# @param formulasAndPriors The reactive formulas and priors
+# @param mcpData The reactive mcp data
+# @param mcpFitList The reactive mcp fit list
+# @param mcpModelName The reactive mcp model name
+# @param custom_points The reactive custom points
+mcpPlotServer <- function(id,
+                          formulasAndPriors,
+                          mcpData,
+                          mcpFitList,
+                          mcpModelName,
+                          custom_points) {
+  moduleServer(id, function(input, output, session) {
+    ns <- session$ns
+    mcpModel <- reactiveVal()
+
+    observe({
+      req(mcpFitList(), mcpModelName())
+      logDebug("%s: Entering observe 'input$showModel' ...", id)
+
+      res <- mcpFitList()[[as.numeric(mcpModelName())]]
+      mcpModel(res)
+    }) %>% bindEvent(mcpModelName())
+
+    # displayed content (either print or plot)
+    out_content <- reactive({
+      if (is.null(mcpModel()))
+        return(NULL)
+
+      mcpModel() %>%
+        plot() %>%
+        addCustomPointsToGGplot(custom_points = custom_points()) %>%
+        shinyTryCatch(
+          errorTitle = sprintf("Error during creating '%s' output", id),
+          warningTitle = sprintf("Warning during creating '%s' output", id)
+        )
+    })
+
+    output$modelOut <- renderPlot({
+      validate(need(
+        formulasAndPriors(),
+        "Please 'Create MCP Lists' and 'Run MCP' first ..."
+      ))
+      validate(need(mcpData(), "Please load data and 'Run MCP' first ..."))
+      validate(need(mcpFitList(), "Please 'Run MCP' first ..."))
+      validate(need(mcpModel(), "Please select MCP model first ..."))
+
+      out_content()
+    })
+
+    output$exportButton <- renderUI({
+      plotExportButton(ns("download"), "Export")
+    })
+
+    plotExportServer(
+      "download",
+      filename = sprintf("model_%s_%s", mcpModelName(), "plot"),
+      plotFun = reactive({
         function() {
           if (is.null(mcpModel()))
             return(NULL)
 
           # cannot use out_content() directly, because some output content gets lost
           #out_content() # !NOT USE!
-          do.call(mcpOutFUN, c(list(mcpModel()), mcpOutFUNParams())) %>%
+          mcpModel() %>%
+            plot() %>%
+            addCustomPointsToGGplot(custom_points = custom_points()) %>%
             shinyTryCatch(
               errorTitle = sprintf("Error during creating '%s' output", id),
               warningTitle = sprintf("Warning during creating '%s' output", id)
             )
         }
-      }))
-    } else {
-      textExportServer("download",
-                       filename = sprintf("model_%s_%s", mcpModelName(), mcpOutFUN),
-                       outFun = reactive({
-                         function() {
-                               if (is.null(mcpModel()))
-                                 return(NULL)
-
-                               # cannot use out_content() directly, because some output content gets lost
-                               #out_content() # !NOT USE!
-                               do.call(mcpOutFUN, c(list(mcpModel()), mcpOutFUNParams())) %>%
-                                 shinyTryCatch(
-                                   errorTitle = sprintf("Error during creating '%s' output", id),
-                                   warningTitle = sprintf("Warning during creating '%s' output", id)
-                                 )
-                         }
-                       }))
-    }
+      })
+    )
   })
 }
