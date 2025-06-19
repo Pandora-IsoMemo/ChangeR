@@ -17,9 +17,12 @@ changePointsUI <- function(id) {
       tabPanel("MCP Lists from Segments & Priors", mcpFormulasUI(ns("formulas"))),
       tabPanel(
         "MCP Modeling",
-        mcpDataUI(ns("mcpData")),
-        mcpModelingUI(ns("mcp")),
-        mcpShowSingleModelUI(ns("singleModelOut"))
+        fluidRow(
+          column(6, mcpDataUI(ns("mcpData"))),
+          column(6, mcpModelingUI(ns("mcp")))
+        ),
+        tags$hr(),
+        mcpModelSummaryUI(ns("singleModelOut"))
       ),
       tabPanel("Comparison of Models", mcpCompareModelsUI(ns(
         "compareModelsOut"
@@ -90,7 +93,7 @@ changePointsServer <- function(id, file_data, uploaded_matrices = reactiveValues
 
     # MCP Output ----
     # Show single model output
-    mcpShowSingleModelServer(
+    mcpModelSummaryServer(
       id = "singleModelOut",
       mcpData = mcpData,
       formulasAndPriors = formulasList$formulasAndPriors,

@@ -162,7 +162,7 @@ setFormulasAndPriors <- function(splittedComb) {
 
 #' Run mcp model
 #'
-#' @param lists A list of lists containing the segmented formulas and priors
+#' @param lists A list of lists containing the segmented formulas and priors, output of `setFormulasAndPriors()`
 #' @param ... Additional arguments to pass to mcp
 #'
 #' @return A list of mcp model fits

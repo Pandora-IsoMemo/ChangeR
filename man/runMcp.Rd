@@ -7,7 +7,7 @@
 runMcp(lists, ...)
 }
 \arguments{
-\item{lists}{A list of lists containing the segmented formulas and priors}
+\item{lists}{A list of lists containing the segmented formulas and priors, output of \code{setFormulasAndPriors()}}
 
 \item{...}{Additional arguments to pass to mcp}
 }
