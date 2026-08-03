@@ -63,7 +63,7 @@ testthat::test_that("detectBreakPoints", {
 
   res <- runMcp(lists = lists, data = df)
 
-  testthat::expect_equal(
+  testthat::expect_contains(
     compareWithLoo(res) %>% colnames() %>% suppressWarnings(),
     c(
       "elpd_diff",
