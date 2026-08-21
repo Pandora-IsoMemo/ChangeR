@@ -1,0 +1,80 @@
+# ChangeR
+
+An App to display and identify isotopic change points in human tooth
+sections using a ChangeR algorithm (v 0.01) that is based on MCP.
+
+## Release notes:
+
+- see `NEWS.md`
+
+## Notes for developers
+
+When adding information to the *help* sites, *docstrings* or the
+*vignette* of this package, please update documentation locally as
+follows. The documentation of the main branch is build automatically via
+github action.
+
+``` r
+
+devtools::document() # or CTRL + SHIFT + D in RStudio
+devtools::build_site()
+```
+
+# Package index
+
+## All functions
+
+- [`changePointsUI()`](https://pandora-isomemo.github.io/ChangeR/reference/changePointsServer.md)
+  [`changePointsServer()`](https://pandora-isomemo.github.io/ChangeR/reference/changePointsServer.md)
+  : Change Points UI
+- [`cleanComb()`](https://pandora-isomemo.github.io/ChangeR/reference/cleanComb.md)
+  : Clean the comb matrix
+- [`compareWithHeuristic()`](https://pandora-isomemo.github.io/ChangeR/reference/compareWithHeuristic.md)
+  : Compare models using heuristic
+- [`compareWithLoo()`](https://pandora-isomemo.github.io/ChangeR/reference/compareWithLoo.md)
+  : Compare models using loo
+- [`compareWithWAIC()`](https://pandora-isomemo.github.io/ChangeR/reference/compareWithWAIC.md)
+  : Compare models using waic
+- [`config()`](https://pandora-isomemo.github.io/ChangeR/reference/config.md)
+  : Config
+- [`getCellChoices()`](https://pandora-isomemo.github.io/ChangeR/reference/getCellChoices.md)
+  : Get cell choices
+- [`getComb()`](https://pandora-isomemo.github.io/ChangeR/reference/getComb.md)
+  : Get the comb matrix
+- [`infoButtonUI()`](https://pandora-isomemo.github.io/ChangeR/reference/infoButtonServer.md)
+  [`infoButtonServer()`](https://pandora-isomemo.github.io/ChangeR/reference/infoButtonServer.md)
+  : Info Button UI
+- [`matrixUI()`](https://pandora-isomemo.github.io/ChangeR/reference/matrixServer.md)
+  [`matrixServer()`](https://pandora-isomemo.github.io/ChangeR/reference/matrixServer.md)
+  : Matrix Module
+- [`mcpCompareModelsUI()`](https://pandora-isomemo.github.io/ChangeR/reference/mcpCompareModelsServer.md)
+  [`mcpCompareModelsServer()`](https://pandora-isomemo.github.io/ChangeR/reference/mcpCompareModelsServer.md)
+  : MCP Compare Models UI
+- [`mcpDataUI()`](https://pandora-isomemo.github.io/ChangeR/reference/mcpDataServer.md)
+  [`mcpDataServer()`](https://pandora-isomemo.github.io/ChangeR/reference/mcpDataServer.md)
+  : UI function of mcpData module
+- [`mcpFormulasUI()`](https://pandora-isomemo.github.io/ChangeR/reference/mcpFormulasServer.md)
+  [`mcpFormulasServer()`](https://pandora-isomemo.github.io/ChangeR/reference/mcpFormulasServer.md)
+  : MCP Formulas UI
+- [`mcpModelSummaryUI()`](https://pandora-isomemo.github.io/ChangeR/reference/mcpModelSummaryServer.md)
+  [`mcpModelSummaryServer()`](https://pandora-isomemo.github.io/ChangeR/reference/mcpModelSummaryServer.md)
+  : MCP Model Summary UI
+- [`mcpModelingUI()`](https://pandora-isomemo.github.io/ChangeR/reference/mcpModelingServer.md)
+  [`mcpModelingServer()`](https://pandora-isomemo.github.io/ChangeR/reference/mcpModelingServer.md)
+  : MCP Modeling UI
+- [`mcpOutUI()`](https://pandora-isomemo.github.io/ChangeR/reference/mcpOutServer.md)
+  [`mcpOutServer()`](https://pandora-isomemo.github.io/ChangeR/reference/mcpOutServer.md)
+  : MCP Output UI
+- [`readExampleMatrix()`](https://pandora-isomemo.github.io/ChangeR/reference/readExampleMatrix.md)
+  : Get Example Matrix
+- [`runMcp()`](https://pandora-isomemo.github.io/ChangeR/reference/runMcp.md)
+  : Run mcp model
+- [`setFormulasAndPriors()`](https://pandora-isomemo.github.io/ChangeR/reference/setFormulasAndPriors.md)
+  : Set formulas and priors
+- [`splitComb()`](https://pandora-isomemo.github.io/ChangeR/reference/splitComb.md)
+  : Split the comb matrix into two matrices
+- [`startApplication()`](https://pandora-isomemo.github.io/ChangeR/reference/startApplication.md)
+  : Start Application
+- [`validateFormula()`](https://pandora-isomemo.github.io/ChangeR/reference/validateFormula.md)
+  : Check formula syntax
+
