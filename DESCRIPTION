@@ -1,6 +1,6 @@
 Package: ChangeR
 Title: Identify and display change points
-Version: 25.04.0
+Version: 26.08.0
 Authors@R: c(
     person("Ricardo", "Fernandes", email = "ldv1452@gmail.com", role = c("aut", "cre")),
     person("Runge", "Antonia", email = "antonia.runge@inwt-statistics.de", role = c("aut"))
@@ -11,7 +11,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
 Imports:
-  DataTools (>= 24.10.0),
+  DataTools (>= 26.08.2),
   DT,
   futile.logger,
   loo,
