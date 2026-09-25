@@ -1,0 +1,301 @@
+#Loading libraries
+# Install package if not already installed
+if (!require(readxl)) {
+  install.packages("readxl", dependencies = TRUE)
+  library(readxl)
+}
+
+# Install package if not already installed
+if (!require(openxlsx)) {
+  install.packages("openxlsx", dependencies = TRUE)
+library(openxlsx)
+}
+
+# Install package if not already installed
+if (!require(mcp)) {
+  install.packages("mcp", dependencies = TRUE)
+  library(mcp)
+}
+
+# Install package if not already installed
+if (!require(zoo)) {
+  install.packages("zoo", dependencies = TRUE)
+  library(zoo)
+}
+
+# Install package if not already installed
+if (!require(ggplot2)) {
+  install.packages("ggplot2", dependencies = TRUE)
+library(ggplot2)
+}
+
+library(dplyr)
+
+# Function to detect outliers using rolling MAD
+detect_outliers_rolling <- function(x, time_window = 5, threshold = 3) {
+  # Calculate rolling median
+  roll_median <- rollapply(x, width = time_window, FUN = median, 
+                          fill = NA, align = "center")
+  
+  # Calculate rolling MAD
+  roll_mad <- rollapply(x, width = time_window, FUN = function(y) {
+    mad(y, constant = 1.4826)
+  }, fill = NA, align = "center")
+  
+  # Calculate absolute deviation from rolling median
+  abs_dev <- abs(x - roll_median)
+  
+  # Identify outliers (adjust threshold as needed)
+  outliers <- abs_dev > (threshold * roll_mad) & !is.na(roll_mad)
+  
+  return(outliers)
+}
+
+#FOLDER LOCATION TO SAVE RESULTS. ENSURE THIS FOLDER IS EMPTY BEFORE USAGE. Use / instead of \
+results_path <- "C:/Users/Ricardo/Desktop/Adam point change/R codes/modelling Sep 2026/Results"
+
+# Create the directory if it doesn't exist
+if (!dir.exists(results_path)) {
+  dir.create(results_path, recursive = TRUE)
+}
+
+#FILE LOCATION FOR DATA. For file path use / instead of \
+file_path <- "C:/Users/Ricardo/Desktop/Adam point change/R codes/modelling Sep 2026/data.xlsx"
+#Selected sheet
+selected_sheet <- "data"
+
+# Load data from Excel file
+data <- read_excel(file_path,sheet = selected_sheet)
+
+
+#MCMC parameters. Recommended minimum: select_chains: 2 / select_iter: 3500 / select_adapt: 1000 . Very fast models: select_chains: 1 / select_iter: 500 / select_adapt: 500. For publication: select_chains: 3 / select_iter: 10000 / select_adapt: 5000
+select_chains <-1
+select_iter <- 1000
+select_adapt <- 1000
+
+#All fits are saved here with the following format region name_model number
+model_env <- list()
+
+# Set all possible models in sequence. These are rows of the type Cereals ~ yearCE. After first row Cereals does not need to be explicitly given. For row two and above instead of yearCE employ 0 + yearCE (there is no discontinuity between adjacent segments) or yearCE employ 1 + yearCE (discontinuity between adjacent segments). Rows are separated by a comma but last row does not contain a comma. The first model is named set_model[[1]] and after this listed in a sequence (2,3,4…)
+
+set_model <- list() 
+fit<- list()
+
+#Two segments
+set_model[[1]] = list(
+
+Cereals ~ yearCE,
+1 + (1|SiteID) ~ 0 + yearCE
+
+)
+
+#Three segments
+set_model[[2]] = list(
+
+Cereals ~ yearCE,
+1 + (1|SiteID) ~ 0 + yearCE,
+1 + (1|SiteID) ~ 0 + yearCE
+
+)
+
+#Four segments
+set_model[[3]] = list(
+
+Cereals ~ yearCE,
+1 + (1|SiteID) ~ 0 + yearCE,
+1 + (1|SiteID) ~ 0 + yearCE,
+1 + (1|SiteID) ~ 0 + yearCE
+
+)
+
+#Five segments
+set_model[[4]] = list(
+
+Cereals ~ yearCE,
+1 + (1|SiteID) ~ 0 + yearCE,
+1 + (1|SiteID) ~ 0 + yearCE,
+1 + (1|SiteID) ~ 0 + yearCE,
+1 + (1|SiteID) ~ 0 + yearCE
+
+)
+
+
+
+
+
+
+
+#Modelling all regions using a loop
+
+unique_regions <- unique(data$Region2)
+unique_regions <- unique_regions[unique_regions != "NA" & !is.na(unique_regions)]
+
+#beginning of region loop
+for (region in unique_regions) {
+
+  print(paste("Processing region:", region))
+  
+  # limiting data to dates below 1900
+  data2 <- data[data$Region2 == region & data$yearCE < 1900, ]
+
+# Parameter to control outlier removal
+use_MAD <- "No"  # Change to "No" to skip outlier removal
+# If employing outlier removal is applied then set time_window (how many years to calculate moving average) and threshold (distance threshold to consider a data point an ouliter)
+time_window <- 3
+threshold <- 1.5
+
+# Conditionally remove outliers
+if (use_MAD == "Yes") {
+  # Detect and remove outliers
+  data2$is_outlier <- detect_outliers_rolling(data2$Cereals, time_window = time_window, threshold = threshold)
+  
+  # Create filtered dataset without outliers
+  data2 <- data2[!data2$is_outlier, ]
+}
+
+# Convert to data.frame
+df <- as.data.frame(data2)
+
+  # counting the number of possible models
+  num_lists <- length(set_model)
+
+  for(i in 1:num_lists) {
+
+    # Get the current model
+    model <- NULL
+    model <- set_model[[i]]
+
+    # Fit
+    fit[[i]] = mcp(model, data = df, chains = select_chains, iter = select_iter, adapt = select_adapt, , par_x = "yearCE")
+    
+    #Saving fit with region identified
+    model_env[[paste0(region, "_", i)]] <- fit[[i]]
+
+  }
+
+# Calculating loo
+loo_model <- list()
+ for(i in 1:num_lists) {
+  loo_model[[i]] <- loo(fit[[i]])
+}
+
+#Comparing all models
+loo_comparison <- do.call(loo::loo_compare, loo_model)
+
+#Summarizing results
+
+loo_df <- as.data.frame(loo_comparison) %>%
+  tibble::rownames_to_column("model_name") %>%
+  mutate(
+    model_index = as.numeric(gsub("model", "", model_name)),
+    diff_se_ratio = elpd_diff / se_diff,
+    # Optional: add absolute ratio
+    abs_ratio = abs(diff_se_ratio),
+    # Optional: add significance indicator (common thresholds)
+    significance = case_when(
+      abs(diff_se_ratio) > 2 ~ "Strong evidence (|t|>2)",
+      abs(diff_se_ratio) > 1.64 ~ "Moderate evidence (|t|>1.64)",
+      abs(diff_se_ratio) > 1.28 ~ "Weak evidence (|t|>1.28)",
+      TRUE ~ "No evidence"
+    ),
+    # Optional: add p-value approximation (two-tailed)
+    p_value_approx = 2 * pnorm(-abs(diff_se_ratio)),
+    rank = row_number()
+  ) %>%
+  select(rank, model_index, model_name, elpd_diff, se_diff, diff_se_ratio, 
+         abs_ratio, significance, p_value_approx, everything())
+
+# Save loo results in string
+string_loo_df <- paste(capture.output(print(loo_df)), collapse = "\n")
+
+
+# Filtering no evidence results and re-order these with models with lower number of segments on top
+filtered_df <- loo_df[loo_df$significance == "No evidence", ]
+# Check the number of list elements in set_model[[model_index]]
+# For each row, get the count of elements in the corresponding set_model list
+filtered_df$set_model_count <- sapply(filtered_df$model_index, function(idx) {
+  length(set_model[[idx]])
+})
+# Reorder the filtered data frame by set_model_count (lowest first)
+filtered_df <- filtered_df[order(filtered_df$set_model_count), ]
+# Save loo results in string
+string_filtered_df <- paste(capture.output(print(filtered_df)), collapse = "\n")
+
+
+
+# Save model summaries
+options(scipen = 999)
+string_model_summary <- list()
+for(i in 1:num_lists) {
+  model_index <- loo_df$model_index[i]
+#Use width to set the credible interval to be shown. By default 68%
+temp1 <- capture.output(summary(fit[[i]],width = 0.68))
+string_model_summary[[i]] <- paste(deparse(temp1), collapse = "\n")
+}
+
+
+# Create the full file path for each region file
+file_path2 <- file.path(results_path, paste0(region, ".xlsx"))
+
+# Create workbook
+Results<-NULL
+wb <- createWorkbook()
+addWorksheet(wb, "Results")
+
+# Split the strings
+loo_lines <- strsplit(string_loo_df, "\n")[[1]]
+filtered_lines <- strsplit(string_filtered_df, "\n")[[1]]
+model_lines <- list()
+for(i in 1:num_lists) {
+model_lines[[i]]  <- strsplit(string_model_summary[[i]] , "\n")[[1]]
+}
+
+
+  Results = c(
+    paste("region:", region),  # Row 1
+    "",                         # Row 2 (empty)
+    "Model comparison results", # Row 3
+    loo_lines,                  # LOO results
+"",
+    "Filtered for significance and ranked according to number of segments (lowest on top)", # Row 3
+    filtered_lines,                  # LOO results
+    ""
+  )
+
+# Add model summaries with headers and empty lines between them
+for(i in 1:length(model_lines)) {
+  Results <- c(Results, 
+               paste("Model", i),  # Header with model number
+               model_lines[[i]], 
+               "")                  # Empty line after
+}
+
+# Build the complete data frame
+all_data <- data.frame(
+  Results
+  )
+
+# Write all data at once
+writeData(wb, "Results", all_data, startCol = 1, startRow = 1, colNames = FALSE)
+
+# Save
+saveWorkbook(wb, file_path2, overwrite = TRUE)
+
+# Saving model plots
+  for(i in 1:num_lists) {
+
+  plot_file_path <- file.path(results_path, paste0(region, "_model_",i,".jpg"))
+
+p <- plot(fit[[i]])
+ggsave(plot_file_path, plot = p, width = 8, height = 6, dpi = 150)
+
+  }
+
+
+
+
+#end of region loop
+}
+
+
+
