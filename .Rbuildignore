@@ -41,7 +41,9 @@
 # Non-package license/readme variants
 ^LICENSE\.md$
 
+# Custom folders
 ^inst/data$
 ^inst/app/predefinedModels/
 ^inst/app/dataQueries/
 ^tests/testthat/testdata_large/
+^Applications$
